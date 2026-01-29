@@ -395,9 +395,18 @@ def generate_markdown_report(predictions: List[Dict[str, Any]]) -> None:
             limit = p.get("calc_limit", 10)
             
             f.write(f"## {home} vs. {away}\n")
-            f.write(f"### 🧪 Goles Esperados\n")
-            f.write(f"- **{home}:** {l_home:.4f} (Limit calc: {limit})\n")
-            f.write(f"- **{away}:** {l_away:.4f}\n")
+            f.write(f"### 🧪 Goles Esperados (Lambdas)\n")
+            
+            # Detailed Breakdown for Home
+            bd_home = p["breakdown"]["home"]
+            f.write(f"**{home}:** {l_home:.4f} (Limit: {limit})\n")
+            f.write(f"> *Ataque:* {bd_home['atts']:.3f} | *Defensa Rival:* {bd_home['defs']:.3f} | *Media Liga:* {bd_home['league_avg']:.2f}\n")
+            
+            # Detailed Breakdown for Away
+            bd_away = p["breakdown"]["away"]
+            f.write(f"**{away}:** {l_away:.4f}\n")
+            f.write(f"> *Ataque:* {bd_away['atts']:.3f} | *Defensa Rival:* {bd_away['defs']:.3f} | *Media Liga:* {bd_away['league_avg']:.2f}\n")
+
             
             # Logs
             if p["correction_logs"]:

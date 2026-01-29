@@ -1,15 +1,17 @@
 # 🔢 Reporte Técnico: V3 (Full EV + Dynamic Limits)
 
-**Generado:** 2026-01-29T12:13:40.865817
+**Generado:** 2026-01-29T12:21:12.996857
 **Estrategia:** EV Search en TODOS los marcadores probables.
 **Validación:** Skip-on-Error activado.
 
 ---
 
 ## Puebla vs. Toluca
-### 🧪 Goles Esperados
-- **Puebla:** 0.7990 (Limit calc: 11)
-- **Toluca:** 2.3313
+### 🧪 Goles Esperados (Lambdas)
+**Puebla:** 0.7990 (Limit: 11)
+> *Ataque:* 0.760 | *Defensa Rival:* 0.581 | *Media Liga:* 1.81
+**Toluca:** 2.3313
+> *Ataque:* 1.445 | *Defensa Rival:* 1.471 | *Media Liga:* 1.29
 
 **⚠️ Ajustes:**
 - Reducción Lambda Propio (15%) por baja Goleador Top (Visita): Alexis Vega
@@ -33,9 +35,11 @@
 | 0-6 | AWAY | 1.0% | 70.6% | 0.716 |
 
 ## Pumas vs. Santos
-### 🧪 Goles Esperados
-- **Pumas:** 1.7868 (Limit calc: 10)
-- **Santos:** 0.9832
+### 🧪 Goles Esperados (Lambdas)
+**Pumas:** 1.7868 (Limit: 10)
+> *Ataque:* 0.857 | *Defensa Rival:* 1.152 | *Media Liga:* 1.81
+**Santos:** 0.9832
+> *Ataque:* 0.826 | *Defensa Rival:* 0.923 | *Media Liga:* 1.29
 
 **Probabilidades:** Local 54.8% | Empate 26.0% | Visita 19.1%
 
@@ -56,9 +60,11 @@
 | 5-2 | HOME | 0.5% | 54.8% | 0.553 |
 
 ## FC Juárez vs. Cruz Azul
-### 🧪 Goles Esperados
-- **FC Juárez:** 1.5838 (Limit calc: 10)
-- **Cruz Azul:** 1.5105
+### 🧪 Goles Esperados (Lambdas)
+**FC Juárez:** 1.5838 (Limit: 10)
+> *Ataque:* 0.871 | *Defensa Rival:* 0.728 | *Media Liga:* 1.81
+**Cruz Azul:** 1.5105
+> *Ataque:* 1.149 | *Defensa Rival:* 1.020 | *Media Liga:* 1.29
 
 **⚠️ Ajustes:**
 - Aumento Lambda Rival (20%) por baja Portero Titular (Visita): Kevin Mier
@@ -83,9 +89,11 @@
 | 4-0 | HOME | 1.2% | 38.2% | 0.394 |
 
 ## Atlas vs. Mazatlán
-### 🧪 Goles Esperados
-- **Atlas:** 2.0850 (Limit calc: 10)
-- **Mazatlán:** 1.1090
+### 🧪 Goles Esperados (Lambdas)
+**Atlas:** 2.0850 (Limit: 10)
+> *Ataque:* 0.940 | *Defensa Rival:* 1.226 | *Media Liga:* 1.81
+**Mazatlán:** 1.1090
+> *Ataque:* 0.761 | *Defensa Rival:* 1.129 | *Media Liga:* 1.29
 
 **Probabilidades:** Local 58.6% | Empate 23.2% | Visita 18.3%
 
@@ -106,9 +114,11 @@
 | 5-2 | HOME | 0.8% | 58.6% | 0.594 |
 
 ## Atlético San Luis vs. Chivas
-### 🧪 Goles Esperados
-- **Atlético San Luis:** 1.1424 (Limit calc: 10)
-- **Chivas:** 1.4096
+### 🧪 Goles Esperados (Lambdas)
+**Atlético San Luis:** 1.1424 (Limit: 10)
+> *Ataque:* 0.889 | *Defensa Rival:* 0.710 | *Media Liga:* 1.81
+**Chivas:** 1.4096
+> *Ataque:* 0.935 | *Defensa Rival:* 1.168 | *Media Liga:* 1.29
 
 **Probabilidades:** Local 28.9% | Empate 29.7% | Visita 41.5%
 
@@ -129,9 +139,11 @@
 | 0-5 | AWAY | 0.4% | 41.5% | 0.418 |
 
 ## Monterrey vs. Tijuana
-### 🧪 Goles Esperados
-- **Monterrey:** 2.0969 (Limit calc: 10)
-- **Tijuana:** 1.2133
+### 🧪 Goles Esperados (Lambdas)
+**Monterrey:** 2.0969 (Limit: 10)
+> *Ataque:* 1.479 | *Defensa Rival:* 0.783 | *Media Liga:* 1.81
+**Tijuana:** 1.2133
+> *Ataque:* 0.994 | *Defensa Rival:* 1.052 | *Media Liga:* 1.29
 
 **⚠️ Ajustes:**
 - Reducción Lambda Propio (10%) por baja Creativo Top (Visita): Gilberto Mora
@@ -155,9 +167,11 @@
 | 5-2 | HOME | 0.9% | 56.5% | 0.574 |
 
 ## León vs. Tigres
-### 🧪 Goles Esperados
-- **León:** 0.7619 (Limit calc: 10)
-- **Tigres:** 2.1649
+### 🧪 Goles Esperados (Lambdas)
+**León:** 0.7619 (Limit: 10)
+> *Ataque:* 0.617 | *Defensa Rival:* 0.682 | *Media Liga:* 1.81
+**Tigres:** 2.1649
+> *Ataque:* 1.362 | *Defensa Rival:* 1.233 | *Media Liga:* 1.29
 
 **Probabilidades:** Local 10.7% | Empate 20.9% | Visita 68.5%
 
@@ -178,9 +192,11 @@
 | 0-6 | AWAY | 0.8% | 68.5% | 0.692 |
 
 ## América vs. Necaxa
-### 🧪 Goles Esperados
-- **América:** 1.9620 (Limit calc: 10)
-- **Necaxa:** 1.0409
+### 🧪 Goles Esperados (Lambdas)
+**América:** 1.9620 (Limit: 10)
+> *Ataque:* 1.065 | *Defensa Rival:* 1.198 | *Media Liga:* 1.81
+**Necaxa:** 1.0409
+> *Ataque:* 1.007 | *Defensa Rival:* 0.697 | *Media Liga:* 1.29
 
 **⚠️ Ajustes:**
 - Reducción Lambda Propio (15%) por baja Goleador Top (Local): Henry Martín
@@ -205,9 +221,11 @@
 | 5-2 | HOME | 0.7% | 57.5% | 0.581 |
 
 ## Querétaro vs. Pachuca
-### 🧪 Goles Esperados
-- **Querétaro:** 0.8531 (Limit calc: 10)
-- **Pachuca:** 1.3711
+### 🧪 Goles Esperados (Lambdas)
+**Querétaro:** 0.8531 (Limit: 10)
+> *Ataque:* 0.696 | *Defensa Rival:* 0.677 | *Media Liga:* 1.81
+**Pachuca:** 1.3711
+> *Ataque:* 0.910 | *Defensa Rival:* 1.168 | *Media Liga:* 1.29
 
 **Probabilidades:** Local 21.7% | Empate 31.0% | Visita 47.3%
 
