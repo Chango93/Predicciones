@@ -1,0 +1,1052 @@
+{
+    "_meta": {
+        "source": "SofaScore Liga MX Apertura 2025 + Clausura 2026",
+        "extracted": "2026-02-02",
+        "description": "Top 100 jugadores por rating + traits especiales por categoría. Auto-determina importancia de bajas/altas.",
+        "importance_rules": {
+            "alta": "rating >= 7.20 (Top 40) OR tiene elite_trait",
+            "media": "rating >= 7.00 (Top 80)",
+            "baja": "rating < 7.00 (fuera top 80)"
+        },
+        "elite_traits": {
+            "description": "TOP 5 de cada categoría predictiva. Si jugador tiene trait, siempre importance=alta.",
+            "elite_scorer": "G+A/90 >= 1.00 - Top 5 productores ofensivos",
+            "elite_playmaker": "Assists/90 >= 0.48 - Top 5 creadores de juego",
+            "elite_goalkeeper": "GA/90 <= 0.95 OR CleanSheet% >= 40% - Top 5 porteros",
+            "high_impact": "Plus/Minus >= +21 - Top 5 impacto en equipo"
+        }
+    },
+    "elite_traits_players": {
+        "elite_scorer": [
+            {
+                "name": "Alexis Vega",
+                "team": "Toluca",
+                "stat": "G+A/90: 1.26"
+            },
+            {
+                "name": "Ángel Sepúlveda",
+                "team": "two_squads",
+                "stat": "G+A/90: 1.08"
+            },
+            {
+                "name": "Armando González",
+                "team": "CD Guadalajara",
+                "stat": "G+A/90: 1.03"
+            },
+            {
+                "name": "Paulinho",
+                "team": "Toluca",
+                "stat": "G+A/90: 1.00"
+            },
+            {
+                "name": "Lucas Ocampos",
+                "team": "Monterrey",
+                "stat": "G+A/90: 0.99"
+            }
+        ],
+        "elite_playmaker": [
+            {
+                "name": "Alexis Vega",
+                "team": "Toluca",
+                "stat": "Assists/90: 0.87"
+            },
+            {
+                "name": "Lucas Ocampos",
+                "team": "Monterrey",
+                "stat": "Assists/90: 0.54"
+            },
+            {
+                "name": "Richy Ledezma",
+                "team": "CD Guadalajara",
+                "stat": "Assists/90: 0.48"
+            },
+            {
+                "name": "Nicolás Castro",
+                "team": "Toluca",
+                "stat": "Assists/90: 0.48"
+            },
+            {
+                "name": "Óliver Torres",
+                "team": "Monterrey",
+                "stat": "Assists/90: 0.37"
+            }
+        ],
+        "elite_goalkeeper": [
+            {
+                "name": "Luis Manuel García",
+                "team": "Toluca",
+                "stat": "GA/90: 0.89, Save%: 80%"
+            },
+            {
+                "name": "Nahuel Guzmán",
+                "team": "Tigres",
+                "stat": "GA/90: 0.90, CS: 9"
+            },
+            {
+                "name": "Hugo González",
+                "team": "Tigres",
+                "stat": "GA/90: 0.92, CS%: 50%"
+            },
+            {
+                "name": "Luis Ángel Malagón",
+                "team": "CF America",
+                "stat": "GA/90: 0.95, CS%: 42%"
+            },
+            {
+                "name": "Kevin Mier",
+                "team": "Cruz Azul",
+                "stat": "GA/90: 1.10, CS%: 31%"
+            }
+        ],
+        "high_impact": [
+            {
+                "name": "Jesús Angulo",
+                "team": "Toluca",
+                "stat": "Plus/Minus: +24"
+            },
+            {
+                "name": "Nicolás Castro",
+                "team": "Toluca",
+                "stat": "Plus/Minus: +23"
+            },
+            {
+                "name": "Franco Romero",
+                "team": "Toluca",
+                "stat": "Plus/Minus: +22"
+            },
+            {
+                "name": "Jesús Gallardo",
+                "team": "Toluca",
+                "stat": "Plus/Minus: +22"
+            },
+            {
+                "name": "Bruno Méndez",
+                "team": "Toluca",
+                "stat": "Plus/Minus: +21"
+            }
+        ]
+    },
+    "players": [
+        {
+            "rank": 0,
+            "name": "Israel Reyes",
+            "team": "CF America",
+            "role": "defensor",
+            "rating": 7.43,
+            "goals": 0,
+            "assists": 0,
+            "_note": "Added manually - Top-40 by user request"
+        },
+        {
+            "rank": 0,
+            "name": "Germán Berterame",
+            "team": "Monterrey",
+            "role": "atacante",
+            "rating": 7.40,
+            "goals": 6,
+            "assists": 2,
+            "_note": "Added manually - Elite scorer"
+        },
+        {
+            "rank": 1,
+            "name": "Pablo Bennevendo",
+            "team": "Pachuca",
+            "role": "portero",
+            "rating": 7.85,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 2,
+            "name": "Ricardo Gutierrez",
+            "team": "Monterrey",
+            "role": "defensor",
+            "rating": 7.85,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 3,
+            "name": "Adalberto Carrasquilla",
+            "team": "Monterrey",
+            "role": "mediocampista",
+            "rating": 7.70,
+            "goals": 2,
+            "assists": 0
+        },
+        {
+            "rank": 4,
+            "name": "Hugo Gonzalez",
+            "team": "Tigres",
+            "role": "portero",
+            "rating": 7.70,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 5,
+            "name": "Agustín Palavecino",
+            "team": "Cruz Azul",
+            "role": "mediocampista",
+            "rating": 7.65,
+            "goals": 2,
+            "assists": 0
+        },
+        {
+            "rank": 6,
+            "name": "Jordan Carrillo",
+            "team": "Cruz Azul",
+            "role": "mediocampista",
+            "rating": 7.63,
+            "goals": 2,
+            "assists": 1
+        },
+        {
+            "rank": 7,
+            "name": "José Paradela",
+            "team": "Cruz Azul",
+            "role": "mediocampista",
+            "rating": 7.63,
+            "goals": 3,
+            "assists": 1
+        },
+        {
+            "rank": 8,
+            "name": "Keylor Navas",
+            "team": "Atletico San Luis",
+            "role": "portero",
+            "rating": 7.60,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 9,
+            "name": "Marcelo Flores",
+            "team": "Tigres",
+            "role": "mediocampista",
+            "rating": 7.55,
+            "goals": 3,
+            "assists": 0
+        },
+        {
+            "rank": 10,
+            "name": "Diego González",
+            "team": "Toluca",
+            "role": "mediocampista",
+            "rating": 7.55,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 11,
+            "name": "Juan Manuel Sanabria",
+            "team": "Mazatlán",
+            "role": "mediocampista",
+            "rating": 7.50,
+            "goals": 1,
+            "assists": 1
+        },
+        {
+            "rank": 12,
+            "name": "Carlos Rodríguez",
+            "team": "Cruz Azul",
+            "role": "mediocampista",
+            "rating": 7.50,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 13,
+            "name": "Antonio Rodríguez",
+            "team": "Atlas",
+            "role": "portero",
+            "rating": 7.48,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 14,
+            "name": "Kevin Castañeda",
+            "team": "Tijuana",
+            "role": "mediocampista",
+            "rating": 7.45,
+            "goals": 2,
+            "assists": 1
+        },
+        {
+            "rank": 15,
+            "name": "Marcel Ruiz",
+            "team": "Toluca",
+            "role": "mediocampista",
+            "rating": 7.43,
+            "goals": 1,
+            "assists": 13
+        },
+        {
+            "rank": 16,
+            "name": "Israel Reyes",
+            "team": "CF America",
+            "role": "defensor",
+            "rating": 7.43,
+            "goals": 0,
+            "assists": 1
+        },
+        {
+            "rank": 17,
+            "name": "Daniel Aguirre",
+            "team": "Monterrey",
+            "role": "mediocampista",
+            "rating": 7.43,
+            "goals": 2,
+            "assists": 1
+        },
+        {
+            "rank": 18,
+            "name": "Germán Berterame",
+            "team": "Monterrey",
+            "role": "atacante",
+            "rating": 7.40,
+            "goals": 2,
+            "assists": 0
+        },
+        {
+            "rank": 19,
+            "name": "Diego Lainez",
+            "team": "Tigres",
+            "role": "atacante",
+            "rating": 7.40,
+            "goals": 1,
+            "assists": 1
+        },
+        {
+            "rank": 20,
+            "name": "Jonathan Dos Santos",
+            "team": "CF America",
+            "role": "mediocampista",
+            "rating": 7.40,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 21,
+            "name": "Efraín Álvarez",
+            "team": "CD Guadalajara",
+            "role": "mediocampista",
+            "rating": 7.38,
+            "goals": 0,
+            "assists": 1
+        },
+        {
+            "rank": 22,
+            "name": "João Pedro Galvão",
+            "team": "Queretaro FC",
+            "role": "atacante",
+            "rating": 7.35,
+            "goals": 4,
+            "assists": 0
+        },
+        {
+            "rank": 23,
+            "name": "Víctor Guzmán",
+            "team": "Pachuca",
+            "role": "mediocampista",
+            "rating": 7.35,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 24,
+            "name": "Óliver Torres",
+            "team": "Monterrey",
+            "role": "mediocampista",
+            "rating": 7.33,
+            "goals": 0,
+            "assists": 2
+        },
+        {
+            "rank": 25,
+            "name": "Joaquim",
+            "team": "Santos Laguna",
+            "role": "defensor",
+            "rating": 7.33,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 26,
+            "name": "Jesús Corona",
+            "team": "Monterrey",
+            "role": "atacante",
+            "rating": 7.30,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 27,
+            "name": "Fernando Beltrán",
+            "team": "CD Guadalajara",
+            "role": "mediocampista",
+            "rating": 7.28,
+            "goals": 0,
+            "assists": 2
+        },
+        {
+            "rank": 28,
+            "name": "Jorge Rodríguez",
+            "team": "Atlas",
+            "role": "mediocampista",
+            "rating": 7.27,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 29,
+            "name": "Camilo Vargas",
+            "team": "Atlas",
+            "role": "portero",
+            "rating": 7.27,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 30,
+            "name": "Franco Romero",
+            "team": "Toluca",
+            "role": "defensor",
+            "rating": 7.27,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 31,
+            "name": "Alan Medina",
+            "team": "Mazatlán",
+            "role": "mediocampista",
+            "rating": 7.25,
+            "goals": 1,
+            "assists": 3
+        },
+        {
+            "rank": 32,
+            "name": "Carlos Moreno",
+            "team": "Queretaro FC",
+            "role": "defensor",
+            "rating": 7.25,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 33,
+            "name": "Iker Fimbres",
+            "team": "Tigres",
+            "role": "mediocampista",
+            "rating": 7.23,
+            "goals": 2,
+            "assists": 0
+        },
+        {
+            "rank": 34,
+            "name": "Brian Rodríguez",
+            "team": "CF America",
+            "role": "atacante",
+            "rating": 7.23,
+            "goals": 1,
+            "assists": 1
+        },
+        {
+            "rank": 35,
+            "name": "Sergio Barreto",
+            "team": "Pachuca",
+            "role": "defensor",
+            "rating": 7.23,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 36,
+            "name": "Helinho",
+            "team": "Toluca",
+            "role": "atacante",
+            "rating": 7.20,
+            "goals": 2,
+            "assists": 1
+        },
+        {
+            "rank": 37,
+            "name": "Roberto Alvarado",
+            "team": "CD Guadalajara",
+            "role": "mediocampista",
+            "rating": 7.20,
+            "goals": 1,
+            "assists": 1
+        },
+        {
+            "rank": 38,
+            "name": "Bruno Méndez",
+            "team": "Toluca",
+            "role": "defensor",
+            "rating": 7.20,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 39,
+            "name": "Gaddi Aguirre",
+            "team": "Tijuana",
+            "role": "defensor",
+            "rating": 7.18,
+            "goals": 0,
+            "assists": 1
+        },
+        {
+            "rank": 40,
+            "name": "Alonso Aceves",
+            "team": "Monterrey",
+            "role": "defensor",
+            "rating": 7.18,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 41,
+            "name": "Guilherme Castilho",
+            "team": "León",
+            "role": "mediocampista",
+            "rating": 7.17,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 42,
+            "name": "Francisco Villalba",
+            "team": "Monterrey",
+            "role": "atacante",
+            "rating": 7.15,
+            "goals": 2,
+            "assists": 1
+        },
+        {
+            "rank": 43,
+            "name": "José Luis Rodríguez",
+            "team": "Necaxa",
+            "role": "mediocampista",
+            "rating": 7.15,
+            "goals": 1,
+            "assists": 1
+        },
+        {
+            "rank": 44,
+            "name": "Luis Malagón",
+            "team": "CF America",
+            "role": "portero",
+            "rating": 7.15,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 45,
+            "name": "Cristián Borja",
+            "team": "Tigres",
+            "role": "defensor",
+            "rating": 7.15,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 46,
+            "name": "Eduardo Bauermann",
+            "team": "Santos Laguna",
+            "role": "defensor",
+            "rating": 7.15,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 47,
+            "name": "Rodrigo Schlegel",
+            "team": "León",
+            "role": "defensor",
+            "rating": 7.15,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 48,
+            "name": "Álvaro Fidalgo",
+            "team": "CF America",
+            "role": "mediocampista",
+            "rating": 7.13,
+            "goals": 0,
+            "assists": 0,
+            "status": "vendido_betis"
+        },
+        {
+            "rank": 49,
+            "name": "Ricardo Chávez",
+            "team": "Queretaro FC",
+            "role": "defensor",
+            "rating": 7.13,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 50,
+            "name": "Brian García",
+            "team": "Pachuca",
+            "role": "defensor",
+            "rating": 7.13,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 51,
+            "name": "Francisco Nevarez",
+            "team": "Pachuca",
+            "role": "mediocampista",
+            "rating": 7.13,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 52,
+            "name": "Luis Romo",
+            "team": "Cruz Azul",
+            "role": "mediocampista",
+            "rating": 7.13,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 53,
+            "name": "Rodrigo Dourado",
+            "team": "CF America",
+            "role": "mediocampista",
+            "rating": 7.13,
+            "goals": 0,
+            "assists": 1
+        },
+        {
+            "rank": 54,
+            "name": "Nathan Silva",
+            "team": "CF America",
+            "role": "defensor",
+            "rating": 7.13,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 55,
+            "name": "José Castillo",
+            "team": "Pachuca",
+            "role": "mediocampista",
+            "rating": 7.13,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 56,
+            "name": "Unai Bilbao",
+            "team": "Atletico San Luis",
+            "role": "defensor",
+            "rating": 7.10,
+            "goals": 0,
+            "assists": 1
+        },
+        {
+            "rank": 57,
+            "name": "Sébastien Salles-Lamonge",
+            "team": "Santos Laguna",
+            "role": "mediocampista",
+            "rating": 7.10,
+            "goals": 0,
+            "assists": 1
+        },
+        {
+            "rank": 58,
+            "name": "Rubén Duarte",
+            "team": "Pumas",
+            "role": "defensor",
+            "rating": 7.10,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 59,
+            "name": "Emilio Lara",
+            "team": "Necaxa",
+            "role": "defensor",
+            "rating": 7.10,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 60,
+            "name": "Kevin Álvarez",
+            "team": "Pachuca",
+            "role": "defensor",
+            "rating": 7.10,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 61,
+            "name": "Omar Govea",
+            "team": "Pachuca",
+            "role": "mediocampista",
+            "rating": 7.10,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 62,
+            "name": "Nicolás Díaz",
+            "team": "Tigres",
+            "role": "defensor",
+            "rating": 7.10,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 63,
+            "name": "Jesus Garza",
+            "team": "Monterrey",
+            "role": "defensor",
+            "rating": 7.10,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 64,
+            "name": "Nahuel Guzmán",
+            "team": "Tigres",
+            "role": "portero",
+            "rating": 7.08,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 65,
+            "name": "Ezequiel Unsain",
+            "team": "León",
+            "role": "portero",
+            "rating": 7.08,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 66,
+            "name": "Elías Montiel",
+            "team": "Tijuana",
+            "role": "defensor",
+            "rating": 7.07,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 67,
+            "name": "Gilberto Mora",
+            "team": "Tijuana",
+            "role": "defensor",
+            "rating": 7.05,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 68,
+            "name": "César Garza",
+            "team": "Monterrey",
+            "role": "defensor",
+            "rating": 7.05,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 69,
+            "name": "Richard Ledezma",
+            "team": "Pachuca",
+            "role": "mediocampista",
+            "rating": 7.03,
+            "goals": 1,
+            "assists": 1
+        },
+        {
+            "rank": 70,
+            "name": "Pedro Vite",
+            "team": "León",
+            "role": "atacante",
+            "rating": 7.03,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 71,
+            "name": "Diego Barbosa",
+            "team": "Necaxa",
+            "role": "defensor",
+            "rating": 7.00,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 72,
+            "name": "Sebastián Cáceres",
+            "team": "CF America",
+            "role": "defensor",
+            "rating": 7.00,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 73,
+            "name": "Federico Pereira",
+            "team": "Queretaro FC",
+            "role": "defensor",
+            "rating": 7.00,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 74,
+            "name": "Alexis Gutiérrez",
+            "team": "CD Guadalajara",
+            "role": "mediocampista",
+            "rating": 7.00,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 75,
+            "name": "Adonis Preciado",
+            "team": "Pumas",
+            "role": "atacante",
+            "rating": 7.00,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 76,
+            "name": "Iván Tona",
+            "team": "Tijuana",
+            "role": "defensor",
+            "rating": 6.98,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 77,
+            "name": "Kevin Velasco",
+            "team": "León",
+            "role": "atacante",
+            "rating": 6.97,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 78,
+            "name": "Jesús Vega",
+            "team": "Toluca",
+            "role": "atacante",
+            "rating": 6.97,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 79,
+            "name": "Juninho Vieira",
+            "team": "Atlas",
+            "role": "atacante",
+            "rating": 6.95,
+            "goals": 1,
+            "assists": 1
+        },
+        {
+            "rank": 80,
+            "name": "Oussama Idrissi",
+            "team": "CD Guadalajara",
+            "role": "atacante",
+            "rating": 6.95,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 81,
+            "name": "Yoel Bárcenas",
+            "team": "Pachuca",
+            "role": "atacante",
+            "rating": 6.95,
+            "goals": 0,
+            "assists": 1
+        },
+        {
+            "rank": 82,
+            "name": "Rodrigo Echeverría",
+            "team": "Toluca",
+            "role": "mediocampista",
+            "rating": 6.95,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 83,
+            "name": "Luis Cárdenas",
+            "team": "Toluca",
+            "role": "defensor",
+            "rating": 6.95,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 84,
+            "name": "Oscar García",
+            "team": "Mazatlán",
+            "role": "defensor",
+            "rating": 6.95,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 85,
+            "name": "Arturo González",
+            "team": "Santos Laguna",
+            "role": "mediocampista",
+            "rating": 6.93,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 86,
+            "name": "Rómulo Zwarg",
+            "team": "Monterrey",
+            "role": "defensor",
+            "rating": 6.93,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 87,
+            "name": "Santiago Homenchenko",
+            "team": "FC Juarez",
+            "role": "defensor",
+            "rating": 6.93,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 88,
+            "name": "Aldo Rocha",
+            "team": "Santos Laguna",
+            "role": "mediocampista",
+            "rating": 6.93,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 89,
+            "name": "Uroš Đurđević",
+            "team": "Pumas",
+            "role": "atacante",
+            "rating": 6.93,
+            "goals": 2,
+            "assists": 0
+        },
+        {
+            "rank": 90,
+            "name": "Facundo Almada",
+            "team": "León",
+            "role": "mediocampista",
+            "rating": 6.90,
+            "goals": 2,
+            "assists": 0
+        },
+        {
+            "rank": 91,
+            "name": "Lucas Di Yorio",
+            "team": "Santos Laguna",
+            "role": "defensor",
+            "rating": 6.90,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 92,
+            "name": "Denzell García",
+            "team": "Queretaro FC",
+            "role": "mediocampista",
+            "rating": 6.90,
+            "goals": 1,
+            "assists": 0
+        },
+        {
+            "rank": 93,
+            "name": "Iker Moreno",
+            "team": "Queretaro FC",
+            "role": "mediocampista",
+            "rating": 6.90,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 94,
+            "name": "Jackson Porozo",
+            "team": "Queretaro FC",
+            "role": "defensor",
+            "rating": 6.90,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 95,
+            "name": "Lorenzo Faravelli",
+            "team": "Necaxa",
+            "role": "mediocampista",
+            "rating": 6.90,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 96,
+            "name": "Everardo López",
+            "team": "Necaxa",
+            "role": "defensor",
+            "rating": 6.90,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 97,
+            "name": "Andrés Gudiño",
+            "team": "CD Guadalajara",
+            "role": "portero",
+            "rating": 6.90,
+            "goals": 0,
+            "assists": 0
+        },
+        {
+            "rank": 98,
+            "name": "Armando González",
+            "team": "Santos Laguna",
+            "role": "mediocampista",
+            "rating": 6.88,
+            "goals": 3,
+            "assists": 0
+        },
+        {
+            "rank": 99,
+            "name": "Sergio Canales",
+            "team": "Monterrey",
+            "role": "mediocampista",
+            "rating": 6.88,
+            "goals": 1,
+            "assists": 1
+        },
+        {
+            "rank": 100,
+            "name": "Ezequiel Bullaude",
+            "team": "CD Guadalajara",
+            "role": "atacante",
+            "rating": 6.88,
+            "goals": 1,
+            "assists": 1
+        }
+    ]
+}

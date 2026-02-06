@@ -1,0 +1,166 @@
+{
+    "meta": {
+        "source": "FootyStats",
+        "url": "https://footystats.org/mexico/liga-mx/xg",
+        "competition": "Liga MX",
+        "season": "Clausura 2026",
+        "extracted_at": "2026-02-02T17:16:00",
+        "team_count": 18,
+        "matches_played": 4,
+        "notes": "xG/xGA del Clausura 2026 (datos de imagen usuario para xG, xGA scrapeado)"
+    },
+    "teams": {
+        "CD Guadalajara": {
+            "xG": 1.53,
+            "xGA": 1.13,
+            "xG_per_match": 1.53,
+            "xGA_per_match": 1.13,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Cruz Azul": {
+            "xG": 1.90,
+            "xGA": 1.11,
+            "xG_per_match": 1.90,
+            "xGA_per_match": 1.11,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Atlas": {
+            "xG": 1.07,
+            "xGA": 1.73,
+            "xG_per_match": 1.07,
+            "xGA_per_match": 1.73,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Pumas UNAM": {
+            "xG": 1.30,
+            "xGA": 1.45,
+            "xG_per_match": 1.30,
+            "xGA_per_match": 1.45,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Pumas": {
+            "xG": 1.30,
+            "xGA": 1.45,
+            "xG_per_match": 1.30,
+            "xGA_per_match": 1.45,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Toluca": {
+            "xG": 1.82,
+            "xGA": 1.07,
+            "xG_per_match": 1.82,
+            "xGA_per_match": 1.07,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Monterrey": {
+            "xG": 1.55,
+            "xGA": 1.40,
+            "xG_per_match": 1.55,
+            "xGA_per_match": 1.40,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Tigres": {
+            "xG": 1.74,
+            "xGA": 1.31,
+            "xG_per_match": 1.74,
+            "xGA_per_match": 1.31,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Tijuana": {
+            "xG": 1.30,
+            "xGA": 1.46,
+            "xG_per_match": 1.30,
+            "xGA_per_match": 1.46,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "CF America": {
+            "xG": 1.62,
+            "xGA": 1.07,
+            "xG_per_match": 1.62,
+            "xGA_per_match": 1.07,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Pachuca": {
+            "xG": 1.44,
+            "xGA": 1.25,
+            "xG_per_match": 1.44,
+            "xGA_per_match": 1.25,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Atletico de San Luis": {
+            "xG": 1.24,
+            "xGA": 1.37,
+            "xG_per_match": 1.24,
+            "xGA_per_match": 1.37,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Puebla": {
+            "xG": 1.28,
+            "xGA": 1.61,
+            "xG_per_match": 1.28,
+            "xGA_per_match": 1.61,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "León": {
+            "xG": 1.28,
+            "xGA": 1.74,
+            "xG_per_match": 1.28,
+            "xGA_per_match": 1.74,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "FC Juarez": {
+            "xG": 1.29,
+            "xGA": 1.34,
+            "xG_per_match": 1.29,
+            "xGA_per_match": 1.34,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Necaxa": {
+            "xG": 1.62,
+            "xGA": 1.45,
+            "xG_per_match": 1.62,
+            "xGA_per_match": 1.45,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Queretaro FC": {
+            "xG": 1.00,
+            "xGA": 1.63,
+            "xG_per_match": 1.00,
+            "xGA_per_match": 1.63,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Santos Laguna": {
+            "xG": 1.21,
+            "xGA": 1.95,
+            "xG_per_match": 1.21,
+            "xGA_per_match": 1.95,
+            "PJ": 4,
+            "source": "FootyStats"
+        },
+        "Mazatlán": {
+            "xG": 1.08,
+            "xGA": 1.74,
+            "xG_per_match": 1.08,
+            "xGA_per_match": 1.74,
+            "PJ": 4,
+            "source": "FootyStats"
+        }
+    }
+}

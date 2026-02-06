@@ -1,8 +1,54 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.log
-.env
-.venv
-env/
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual Environment
 venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Data (no versionar datos grandes)
+data/raw/*.json
+data/processed/*.json
+data/cache/*.json
+
+# Reports (generados, no versionar)
+reports/
+*.md
+!README.md
+!docs/**/*.md
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug/Temp scripts (no versionar)
+scripts/debug_*.py
+scripts/inspect_*.py
+temp*.py
+test_*.py
+
+# Env files
+.env
+*.env
