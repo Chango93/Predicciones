@@ -45,24 +45,23 @@ def fuzzy_match_team(team_name, valid_teams):
 def main():
     # 1. Load User Qualitative Data
     try:
-        with open("jornada 5.json", "r", encoding="utf-8") as f:
+        with open("data/raw/jornada 5.json", "r", encoding="utf-8") as f:
             user_data = json.load(f)
     except FileNotFoundError:
-        print("Error: jornada 5.json not found.")
-        return
+        print("Error: data/raw/jornada 5.json not found. Make sure user notes are saved there.")
+        exit(1)
 
     # 2. Load API Quantitative Data
     try:
-        with open("jornada_5_api.json", "r", encoding="utf-8") as f:
+        with open("data/processed/jornada_5_api.json", "r", encoding="utf-8") as f:
             api_data_wrapper = json.load(f)
             api_matches = api_data_wrapper.get("matches", [])
     except FileNotFoundError:
-        print("Error: jornada_5_api.json not found.")
-        return
+        print("Error: data/processed/jornada_5_api.json not found.")
+        print("Make sure to run fetcher.py first (or let ejecutar_predicciones.py run it).")
+        exit(1)
 
     # 3. Define Verified Stats (From Summary) - Apertura 2025 Regular (17 Games)
-    # Copied from verified verification script output to fix the "GF:0, GC:0" issue
-    # Format: "Team": {"GF": X, "GC": Y, "PJ": 17}
     verified_apertura_stats = {
         "Toluca": {"GF": 43, "GC": 18, "PJ": 17},
         "Tigres": {"GF": 35, "GC": 16, "PJ": 17},
@@ -79,7 +78,7 @@ def main():
         "Necaxa": {"GF": 24, "GC": 32, "PJ": 17},
         "Atlas": {"GF": 24, "GC": 35, "PJ": 17},
         "Atletico de San Luis": {"GF": 25, "GC": 29, "PJ": 17},
-        "Mazatln": {"GF": 20, "GC": 29, "PJ": 17}, # Encoding check
+        "Mazatln": {"GF": 20, "GC": 29, "PJ": 17},
         "Mazatlan": {"GF": 20, "GC": 29, "PJ": 17},
         "Len": {"GF": 14, "GC": 31, "PJ": 17},
         "Leon": {"GF": 14, "GC": 31, "PJ": 17},
@@ -89,7 +88,7 @@ def main():
     # 4. Merge Logic
     merged_matches = []
     
-    # Process User Matches (Primary Source for pairings)
+    # Process User Matches
     for u_match in user_data:
         # User format: "Home vs Away"
         match_id = u_match.get("match_id", "")
@@ -163,12 +162,11 @@ def main():
     output_wrapper = api_data_wrapper.copy()
     output_wrapper["matches"] = merged_matches
     
-    output_filename = "jornada_5_final.json"
+    output_filename = "data/processed/jornada_5_final.json"
     with open(output_filename, "w", encoding="utf-8") as f:
         json.dump(output_wrapper, f, indent=4, ensure_ascii=False)
         
     print(f"Successfully merged {len(merged_matches)} matches into {output_filename}")
-    print("Qualitative data from user preserved. Quantitative history patched.")
 
 if __name__ == "__main__":
     main()

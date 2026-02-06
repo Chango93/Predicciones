@@ -2,7 +2,7 @@
     "meta": {
         "season": "Clausura 2026",
         "jornada_detected": "Clausura 2026 - J5",
-        "cutoff_datetime": "2026-02-01T01:13:43.532484",
+        "cutoff_datetime": "2026-02-05T22:19:31.884649",
         "total_matches_in_jornada": 18
     },
     "matches": [
@@ -12,7 +12,7 @@
                 "away": "Atletico de San Luis",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2025-08-16T01:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.883140"
             },
             "stats": {
                 "home": {
@@ -31,7 +31,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -65,7 +65,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -104,7 +104,7 @@
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -119,7 +119,7 @@
                 "away": "León",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2025-08-16T03:05:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.883140"
             },
             "stats": {
                 "home": {
@@ -138,7 +138,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -172,7 +172,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -211,7 +211,7 @@
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -226,7 +226,7 @@
                 "away": "FC Juarez",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2025-08-16T23:07:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.883140"
             },
             "stats": {
                 "home": {
@@ -245,7 +245,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -279,7 +279,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -318,7 +318,7 @@
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -333,7 +333,7 @@
                 "away": "Pumas",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2025-08-17T03:10:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.883140"
             },
             "stats": {
                 "home": {
@@ -348,11 +348,11 @@
                         "GF_total": 73,
                         "GC_total": 34,
                         "DOM_avg_home": 9.28,
-                        "DOM_avg_away": 5.04,
+                        "DOM_avg_away": 5.01,
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -386,7 +386,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -425,7 +425,7 @@
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -440,7 +440,7 @@
                 "away": "Tijuana",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2025-08-17T01:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.883140"
             },
             "stats": {
                 "home": {
@@ -450,16 +450,16 @@
                         "PJ_home": 11,
                         "GF_away": 30,
                         "GC_away": 32,
-                        "PJ_away": 22,
-                        "PJ_total": 33,
+                        "PJ_away": 24,
+                        "PJ_total": 35,
                         "GF_total": 42,
                         "GC_total": 43,
                         "DOM_avg_home": 0.0,
-                        "DOM_avg_away": 0.0,
+                        "DOM_avg_away": 3.38,
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -493,7 +493,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -532,7 +532,7 @@
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -547,7 +547,7 @@
                 "away": "CF America",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2025-08-17T01:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.883140"
             },
             "stats": {
                 "home": {
@@ -562,11 +562,11 @@
                         "GF_total": 67,
                         "GC_total": 42,
                         "DOM_avg_home": 5.23,
-                        "DOM_avg_away": 3.82,
+                        "DOM_avg_away": 4.29,
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -600,7 +600,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -639,7 +639,7 @@
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -654,7 +654,7 @@
                 "away": "Santos Laguna",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2025-08-17T01:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.883140"
             },
             "stats": {
                 "home": {
@@ -668,12 +668,12 @@
                         "PJ_total": 37,
                         "GF_total": 64,
                         "GC_total": 44,
-                        "DOM_avg_home": 4.09,
+                        "DOM_avg_home": 0.0,
                         "DOM_avg_away": 7.31,
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -707,7 +707,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -746,7 +746,7 @@
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -761,18 +761,18 @@
                 "away": "Atlas",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2025-08-17T22:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.883140"
             },
             "stats": {
                 "home": {
                     "clausura_2026": {
                         "GF_home": 12,
                         "GC_home": 13,
-                        "PJ_home": 9,
+                        "PJ_home": 10,
                         "GF_away": 20,
                         "GC_away": 42,
                         "PJ_away": 22,
-                        "PJ_total": 31,
+                        "PJ_total": 32,
                         "GF_total": 32,
                         "GC_total": 55,
                         "DOM_avg_home": 0.0,
@@ -780,7 +780,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -814,7 +814,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -853,7 +853,7 @@
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -868,7 +868,7 @@
                 "away": "Mazatlán",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2025-08-18T00:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.884649"
             },
             "stats": {
                 "home": {
@@ -882,12 +882,12 @@
                         "PJ_total": 38,
                         "GF_total": 73,
                         "GC_total": 64,
-                        "DOM_avg_home": 5.98,
+                        "DOM_avg_home": 0.0,
                         "DOM_avg_away": 6.66,
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -921,7 +921,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -960,7 +960,7 @@
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -975,7 +975,7 @@
                 "away": "Atletico de San Luis",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2026-02-07T01:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.884649"
             },
             "stats": {
                 "home": {
@@ -994,7 +994,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1028,7 +1028,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1063,11 +1063,11 @@
             "competitive_context": [],
             "venue": {
                 "stadium": "Estadio Victoria",
-                "city": null,
+                "city": "",
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -1082,7 +1082,7 @@
                 "away": "Santos Laguna",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2026-02-07T01:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.884649"
             },
             "stats": {
                 "home": {
@@ -1097,11 +1097,11 @@
                         "GF_total": 67,
                         "GC_total": 42,
                         "DOM_avg_home": 5.23,
-                        "DOM_avg_away": 3.82,
+                        "DOM_avg_away": 4.29,
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1135,7 +1135,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1170,11 +1170,11 @@
             "competitive_context": [],
             "venue": {
                 "stadium": "Estadio Universitario UANL",
-                "city": null,
+                "city": "",
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -1188,8 +1188,8 @@
                 "home": "Tijuana",
                 "away": "Puebla",
                 "jornada": "Clausura 2026 - J5",
-                "kickoff_datetime": "2026-02-07T03:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "kickoff_datetime": "2026-02-07T03:06:00",
+                "cutoff_datetime": "2026-02-05T22:19:31.884649"
             },
             "stats": {
                 "home": {
@@ -1208,7 +1208,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1242,7 +1242,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1277,11 +1277,11 @@
             "competitive_context": [],
             "venue": {
                 "stadium": "Estadio Caliente",
-                "city": null,
+                "city": "",
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -1296,7 +1296,7 @@
                 "away": "CD Guadalajara",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2026-02-07T03:06:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.884649"
             },
             "stats": {
                 "home": {
@@ -1315,7 +1315,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1349,7 +1349,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1384,11 +1384,11 @@
             "competitive_context": [],
             "venue": {
                 "stadium": "Estadio de Mazatlán",
-                "city": null,
+                "city": "",
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -1403,18 +1403,18 @@
                 "away": "León",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2026-02-07T23:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.884649"
             },
             "stats": {
                 "home": {
                     "clausura_2026": {
                         "GF_home": 12,
                         "GC_home": 13,
-                        "PJ_home": 9,
+                        "PJ_home": 10,
                         "GF_away": 20,
                         "GC_away": 42,
                         "PJ_away": 22,
-                        "PJ_total": 31,
+                        "PJ_total": 32,
                         "GF_total": 32,
                         "GC_total": 55,
                         "DOM_avg_home": 0.0,
@@ -1422,7 +1422,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1456,7 +1456,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1491,11 +1491,11 @@
             "competitive_context": [],
             "venue": {
                 "stadium": "Estadio La Corregidora",
-                "city": null,
+                "city": "",
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -1510,7 +1510,7 @@
                 "away": "Cruz Azul",
                 "jornada": "Clausura 2026 - J5",
                 "kickoff_datetime": "2026-02-07T23:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "cutoff_datetime": "2026-02-05T22:19:31.884649"
             },
             "stats": {
                 "home": {
@@ -1525,11 +1525,11 @@
                         "GF_total": 73,
                         "GC_total": 34,
                         "DOM_avg_home": 9.28,
-                        "DOM_avg_away": 5.04,
+                        "DOM_avg_away": 5.01,
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1558,12 +1558,12 @@
                         "PJ_total": 37,
                         "GF_total": 64,
                         "GC_total": 44,
-                        "DOM_avg_home": 4.09,
+                        "DOM_avg_home": 0.0,
                         "DOM_avg_away": 7.31,
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1598,11 +1598,11 @@
             "competitive_context": [],
             "venue": {
                 "stadium": "Estadio Nemesio Díez",
-                "city": null,
+                "city": "",
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -1616,8 +1616,8 @@
                 "home": "Atlas",
                 "away": "Pumas",
                 "jornada": "Clausura 2026 - J5",
-                "kickoff_datetime": "2026-02-08T01:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "kickoff_datetime": "2026-02-08T01:05:00",
+                "cutoff_datetime": "2026-02-05T22:19:31.884649"
             },
             "stats": {
                 "home": {
@@ -1636,7 +1636,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1670,7 +1670,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1705,11 +1705,11 @@
             "competitive_context": [],
             "venue": {
                 "stadium": "Estadio Jalisco",
-                "city": null,
+                "city": "",
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -1723,8 +1723,8 @@
                 "home": "Pachuca",
                 "away": "FC Juarez",
                 "jornada": "Clausura 2026 - J5",
-                "kickoff_datetime": "2026-02-08T01:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "kickoff_datetime": "2026-02-08T01:06:00",
+                "cutoff_datetime": "2026-02-05T22:19:31.884649"
             },
             "stats": {
                 "home": {
@@ -1734,16 +1734,16 @@
                         "PJ_home": 11,
                         "GF_away": 30,
                         "GC_away": 32,
-                        "PJ_away": 22,
-                        "PJ_total": 33,
+                        "PJ_away": 24,
+                        "PJ_total": 35,
                         "GF_total": 42,
                         "GC_total": 43,
                         "DOM_avg_home": 0.0,
-                        "DOM_avg_away": 0.0,
+                        "DOM_avg_away": 3.38,
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1777,7 +1777,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1812,11 +1812,11 @@
             "competitive_context": [],
             "venue": {
                 "stadium": "Estadio Hidalgo",
-                "city": null,
+                "city": "",
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {
@@ -1830,8 +1830,8 @@
                 "home": "CF America",
                 "away": "Monterrey",
                 "jornada": "Clausura 2026 - J5",
-                "kickoff_datetime": "2026-02-08T03:00:00",
-                "cutoff_datetime": "2026-02-01T01:13:43.532484"
+                "kickoff_datetime": "2026-02-08T03:10:00",
+                "cutoff_datetime": "2026-02-05T22:19:31.884649"
             },
             "stats": {
                 "home": {
@@ -1850,7 +1850,7 @@
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1879,12 +1879,12 @@
                         "PJ_total": 38,
                         "GF_total": 73,
                         "GC_total": 64,
-                        "DOM_avg_home": 5.98,
+                        "DOM_avg_home": 0.0,
                         "DOM_avg_away": 6.66,
                         "source": {
                             "evidence_level": "stats_db_top",
                             "source_url": "TheSportsDB API (Computed)",
-                            "source_date": "2026-02-01"
+                            "source_date": "2026-02-05"
                         },
                         "derivation": {
                             "method": "computed_from_events",
@@ -1919,11 +1919,11 @@
             "competitive_context": [],
             "venue": {
                 "stadium": "Estadio Ciudad de los Deportes",
-                "city": null,
+                "city": "",
                 "pitch_type": "no_confirmado",
                 "evidence_level": "stats_db_top",
                 "source_title": "TheSportsDB Schedule",
-                "source_date": "2026-02-01",
+                "source_date": "2026-02-05",
                 "source_url": "https://www.thesportsdb.com/api/v1/json/180725/eventsseason.php?id=4350&s=2025-2026"
             },
             "uncertainty": {

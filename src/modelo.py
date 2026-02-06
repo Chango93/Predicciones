@@ -1010,7 +1010,7 @@ def generate_markdown_report(predictions: List[Dict[str, Any]], matches: List[Di
     """
     Generates a Markdown report for the user.
     """
-    filename = "reporte_tecnico_automatico.md"
+    filename = "reports/reporte_tecnico_automatico.md"
     print(f"Generating report: {filename}...")
     
     with open(filename, "w", encoding="utf-8") as f:
