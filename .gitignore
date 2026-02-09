@@ -34,6 +34,7 @@ reports/
 *.md
 !README.md
 !docs/**/*.md
+!historial_desempeno.md
 
 # Logs
 logs/
