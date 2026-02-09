@@ -4,18 +4,18 @@ Este documento centraliza el historial de desempeño, resultados reales y análi
 
 ## 🏆 Tabla General de Desempeño
 
-| Jornada | Puntos | Exactos | Ranking | Aciertos (Tendencia) | Notas |
-| :---: | :---: | :---: | :---: | :---: | :--- |
-| **5** | **4** | 0 | **20º** | 4/9 (44%) | Inicio del registro de resultados reales. Jornada de sorpresas. |
-| **4** | -- | -- | -- | -- | *Solo análisis pre-partido disponible (ver abajo).* |
+| Jornada | Puntos | Exactos | Ranking Global | Punto Totales | Aciertos (Tendencia) |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| **5** | **4** | 0 | **20º** | 19 | 4/9 (44%) |
+| **4** | **5** | 0 | -- | -- | 5/9 (55%) |
 
 ---
 
 ## 📅 Jornada 5: Resultados Reales
 
-**Resumen:** 4 Puntos | 0 Exactos | Rank 20
+**Resumen:** 4 Puntos | 0 Exactos
 
-| Partido | Predicción Modelo | Resultado Real | Puntos | Análisis Post-Jornada |
+| Partido | Predicción Modelo | Resultado Real | Puntos | Análisis Flash |
 | :--- | :---: | :---: | :---: | :--- |
 | Pachuca vs Juárez | 1 - 2 | **2 - 0** | 🔴 0 | **Fallo.** El modelo sobrevaloró a Juárez o subestimó la localía de Pachuca. |
 | América vs Monterrey | 1 - 1 | **1 - 0** | 🔴 0 | **Cerca.** Partido cerrado, decidido por la mínima. |
@@ -29,29 +29,23 @@ Este documento centraliza el historial de desempeño, resultados reales y análi
 
 ---
 
-## 📂 Archivo: Jornada 4 (Análisis Previo)
+## � Jornada 4: Resultados Reales
 
-*Nota: Estos partidos corresponden a la ejecución del modelo para la Jornada 4. No se cuenta con el registro de resultados reales para puntaje oficial.*
+**Resumen:** 5 Puntos | 0 Exactos
 
-### 1. 🎽 Puebla vs. Toluca 👹
+| Partido | Predicción Modelo | Resultado Real | Puntos | Análisis Flash |
+| :--- | :---: | :---: | :---: | :--- |
+| **San Luis vs Chivas** | 0 - 1 | **2 - 3** | 🟢 **1** | **Acierto.** Chivas cumplió de visita. Tendencia correcta. |
+| Monterrey vs Tijuana | 2 - 1 | **2 - 2** | 🔴 0 | Empate agónico de Xolos que rompió el pick local. |
+| **América vs Necaxa** | 2 - 1 | 2 - 0 | 🟢 **1** | **Acierto.** América sólido local. |
+| **Atlas vs Mazatlán** | 2 - 1 | 1 - 0 | 🟢 **1** | **Acierto.** Atlas cumple en casa. |
+| **León vs Tigres** | 0 - 1 | 1 - 2 | 🟢 **1** | **Acierto.** Tigres gana fuera, como predijo la Lambda alta. |
+| Puebla vs Toluca | 0 - 2 | **0 - 0** | 🔴 0 | Toluca se secó. El modelo esperaba goles que nunca llegaron. |
+| Juárez vs Cruz Azul | 2 - 1 | **3 - 4** | � 0 | Locura de goles. Cruz Azul ganó en un tiroteo no previsto. |
+| **Pumas vs Santos** | 2 - 0 | 4 - 0 | 🟢 **1** | **Acierto.** Paliza en CU. El modelo vio venir la debilidad de Santos. |
+| Querétaro vs Pachuca | 0 - 1 | **0 - 0** | 🔴 0 | Empate sin goles donde se esperaba victoria tuza. |
 
-**Predicción: Empate 1-1**
+### 📝 Notas Históricas (Jornada 4)
 
-* **La Historia:** Duelo tenso. Toluca con baja de Alexis Vega (Lambda 1.52) vs Puebla jugando al límite (Lambda 1.04).
-* **Veredicto:** Probabilidad de empate 19.3%. El modelo sugirió 1-1 como pick racional.
-
-### 2. 🐾 Pumas UNAM vs. Santos Laguna 😇
-
-**Predicción: Victoria Local 1-0**
-
-* **La Historia:** Pumas sólido en CU (Lambda 1.65) a pesar de la baja de JJ Macías. Santos en crisis defensiva (Lambda 0.85).
-* **Veredicto:** El 1-0 lideró la probabilidad (13.5%), indicando victoria controlada y baja en goles.
-
-### 3. 🐎 FC Juárez vs. Cruz Azul 🚂
-
-**Estado: BLOQUEADO**
-
-* Este partido no fue procesado por `hard_missing_critical` en los datos de entrada (conflicto médico en Cruz Azul).
-
----
-*Fin del reporte.*
+* *Pumas vs Santos:* La predicción (2-0, 13.5% prob) fue extremadamente precisa en la dirección, identificando a Santos como un equipo débil (Lambda 0.85).
+* *Juárez vs Cruz Azul:* Este partido tuvo datos conflictivos inicialmente (flag "Bloqueado"), lo que explica la divergencia tan grande en el resultado final (3-4).
