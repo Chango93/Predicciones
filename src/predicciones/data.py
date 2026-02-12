@@ -43,7 +43,7 @@ def apply_minutes_gate(baja):
     
     return impact_orig
 
-def load_bajas_penalties(file_path="evaluacion_bajas.json"):
+def load_bajas_penalties(file_path="data/inputs/evaluacion_bajas.json"):
     """
     Loads structured bajas evaluation and applies penalties.
     Returns a dictionary with both numerical adjustments and reporting logs.
@@ -144,7 +144,7 @@ def load_bajas_penalties(file_path="evaluacion_bajas.json"):
             
     return team_adjustments
 
-def load_qualitative_adjustments(team_adjustments, qualitative_path="Investigacion_cualitativa_jornada6.json"):
+def load_qualitative_adjustments(team_adjustments, qualitative_path="data/inputs/Investigacion_cualitativa_jornada6.json"):
     """
     Loads qualitative context and transfers.
     Updates the team_adjustments dictionary in place.
