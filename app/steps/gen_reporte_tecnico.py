@@ -33,6 +33,7 @@ def main():
     # Parse Qualitative (Now Hybrid with Synced JSON)
     # Using the new consolidated loader
     adj_map = data_loader.load_bajas_penalties(runtime_config['INPUT_EVALUATION'])
+    adj_map = data_loader.load_perplexity_weekly_bajas(adj_map, runtime_config.get('INPUT_PERPLEXITY_BAJAS', 'data/inputs/perplexity_bajas_semana.json'))
     adj_map = data_loader.load_qualitative_adjustments(adj_map, runtime_config['INPUT_QUALITATIVE'])
     
     # We no longer check for 'ligamx_clausura2026_injuries.json' separately as logic is merged.   
@@ -87,6 +88,7 @@ def main():
         md_output.append(f"\n## {home_raw} vs. {away_raw}")
         
         # --- QUINIELA METRICS ---
+        top_5 = quiniela['top_5_by_prob']
         top_5 = quiniela['top_5_scorelines']
         pick_exact = quiniela['pick_exact']
         pick_1x2_raw = quiniela['pick_1x2']
@@ -98,6 +100,7 @@ def main():
         md_output.append(f"- **Pick 1X2:** {pick_1x2} (Prob: {prob_res:.1%})")
         md_output.append(f"- **Pick Exacto:** {pick_exact} (Prob: {top_5[0]['prob']:.1%})")
         md_output.append(f"- **Valor Esperado (EV):** {ev:.3f}")
+        md_output.append(f"- **Confianza del pick (gap EV):** {quiniela['ev_confidence_gap']:.3f}")
         md_output.append(f"- **Top 5 Marcadores:**")
         for s in top_5:
             md_output.append(f"  - {s['score']}: {s['prob']:.1%}")
@@ -200,7 +203,7 @@ def main():
         
         # Generate options from grilla top (ordenadas por EV real de quiniela)
         options = []
-        for item in quiniela['top_5_scorelines']:
+        for item in quiniela['top_5_by_ev']:
             h, a = item['h'], item['a']
             p_exact = item['prob']
 

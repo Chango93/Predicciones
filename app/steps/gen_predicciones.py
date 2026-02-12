@@ -24,6 +24,7 @@ def main():
     print("Parsing qualitative data...")
     # qualu_path = "Investigacion_cualitativa_jornada6.json"
     adj_map = data_loader.load_bajas_penalties(runtime_config['INPUT_EVALUATION']) # Uses eval json
+    adj_map = data_loader.load_perplexity_weekly_bajas(adj_map, runtime_config.get('INPUT_PERPLEXITY_BAJAS', 'data/inputs/perplexity_bajas_semana.json'))
     # Qualu adjust
     adj_map = data_loader.load_qualitative_adjustments(adj_map, runtime_config['INPUT_QUALITATIVE'])
     
@@ -94,7 +95,7 @@ def main():
         prob_home_win = quiniela['prob_home_win']
         prob_draw = quiniela['prob_draw']
         prob_away_win = quiniela['prob_away_win']
-        top_5 = quiniela['top_5_scorelines']
+        top_5 = quiniela['top_5_by_prob']
         pick_exact = quiniela['pick_exact']
         pick_1x2 = quiniela['pick_1x2']
         ev = quiniela['ev']
@@ -119,6 +120,11 @@ def main():
             'prob_draw': prob_draw,
             'prob_away_win': prob_away_win,
             'top_5_scorelines': '|'.join([f"{s['score']}:{s['prob']:.3f}" for s in top_5]),
+            'top_5_ev': '|'.join([f"{s['score']}:{s['ev']:.3f}" for s in quiniela['top_5_by_ev']]),
+            'pick_exact': pick_exact,
+            'pick_1x2': pick_1x2,
+            'ev': ev,
+            'ev_confidence_gap': quiniela['ev_confidence_gap'],
             'pick_exact': pick_exact,
             'pick_1x2': pick_1x2,
             'ev': ev,
@@ -139,6 +145,7 @@ def main():
     cols = ['home_team_canonical', 'away_team_canonical', 'pick_1x2', 'pick_exact', 'ev', 
             'prob_home_win', 'prob_draw', 'prob_away_win', 
             'lambda_home_final', 'lambda_away_final', 
+            'top_5_scorelines', 'top_5_ev', 'ev_confidence_gap', 'grid_max_goals', 'captured_mass', 'qualitative_notes']
             'top_5_scorelines', 'grid_max_goals', 'captured_mass', 'qualitative_notes']
     
     # Ensure all columns exist

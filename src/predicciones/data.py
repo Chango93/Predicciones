@@ -255,3 +255,168 @@ def load_qualitative_adjustments(team_adjustments, qualitative_path="data/inputs
                 team_adjustments[current_team]['context_txt'].append(f"- ℹ️ **CONTEXTO:** {evidence}")
 
     return team_adjustments
+
+
+def _ensure_team_adjustment(team_adjustments, team_name):
+    """Inicializa estructura de ajustes por equipo si no existe."""
+    if team_name not in team_adjustments:
+        team_adjustments[team_name] = {
+            'att_adj': 1.0,
+            'def_adj': 1.0,
+            'notes': [],
+            'report_log': [],
+            'ausencias_txt': [],
+            'movimientos_txt': [],
+            'context_txt': [],
+        }
+
+    # Garantizar llaves mínimas para evitar KeyError.
+    team_adjustments[team_name].setdefault('att_adj', 1.0)
+    team_adjustments[team_name].setdefault('def_adj', 1.0)
+    team_adjustments[team_name].setdefault('notes', [])
+    team_adjustments[team_name].setdefault('report_log', [])
+    team_adjustments[team_name].setdefault('ausencias_txt', [])
+    team_adjustments[team_name].setdefault('movimientos_txt', [])
+    team_adjustments[team_name].setdefault('context_txt', [])
+
+
+
+def _apply_scaled_adjustment(team_adjustments, team_name, player, role, impact_level, status, reason,
+                             source='perplexity', confidence=0.75, recency_days=0):
+    """
+    Aplica ajuste de bajas con factor de confianza y recencia.
+
+    Escala final = confidence * recency_factor
+    recency_factor decae linealmente hasta 0.55 en 14 días.
+    """
+    _ensure_team_adjustment(team_adjustments, team_name)
+
+    role_l = (role or '').lower()
+    status_l = (status or '').lower()
+
+    if (impact_level or '').lower() in ['low', 'none', 'unknown', 'desconocido']:
+        return
+
+    is_key = (impact_level or '').lower() == 'high'
+
+    # Sin impacto en duda por diseño conservador
+    if 'duda' in status_l:
+        impact_factor = 0.0
+    else:
+        impact_factor = 1.0
+
+    recency_days = max(0, min(30, int(recency_days or 0)))
+    recency_factor = max(0.55, 1.0 - (recency_days / 31.0) * 0.45)
+    scale = max(0.30, min(1.0, float(confidence or 0.75))) * recency_factor
+
+    penalty_att = 1.0
+    penalty_def = 1.0
+    desc_log = ""
+    pct_log = 0.0
+
+    if "portero" in role_l:
+        base = PENALTIES['GK_KEY'] if is_key else 1.05
+        effect = (base - 1.0) * impact_factor * scale
+        penalty_def = 1.0 + effect
+        desc_log = f"Lambda Rival (Portero) [{source}]"
+        pct_log = effect * 100
+    elif "defensa" in role_l or "lateral" in role_l or "central" in role_l:
+        base = PENALTIES['DF_KEY'] if is_key else PENALTIES['DF_REG']
+        effect = (base - 1.0) * impact_factor * scale
+        penalty_def = 1.0 + effect
+        desc_log = f"Lambda Rival (Defensa) [{source}]"
+        pct_log = effect * 100
+    elif "mediocampista" in role_l or "volante" in role_l:
+        base = PENALTIES['MF_KEY'] if is_key else PENALTIES['MF_REG']
+        effect = (1.0 - base) * impact_factor * scale
+        penalty_att = 1.0 - effect
+        desc_log = f"Lambda Propio (Medio) [{source}]"
+        pct_log = (penalty_att - 1.0) * 100
+    elif "delantero" in role_l or "atacante" in role_l or "extremo" in role_l:
+        base = PENALTIES['FW_KEY'] if is_key else PENALTIES['FW_REG']
+        effect = (1.0 - base) * impact_factor * scale
+        penalty_att = 1.0 - effect
+        desc_log = f"Lambda Propio (Ataque) [{source}]"
+        pct_log = (penalty_att - 1.0) * 100
+    else:
+        # Rol desconocido: ajuste mínimo conservador
+        effect = 0.02 * scale * impact_factor
+        penalty_att = 1.0 - effect
+        desc_log = f"Lambda Propio (Rol no clasificado) [{source}]"
+        pct_log = (penalty_att - 1.0) * 100
+
+    curr = team_adjustments[team_name]
+    curr['att_adj'] *= penalty_att
+    curr['def_adj'] *= penalty_def
+
+    icon = "🚑" if "fuera" in status_l or "out" in status_l else "⚠️"
+    curr['ausencias_txt'].append(
+        f"{icon} **{player}** ({role or 'N/A'}): {status or 'N/A'} - *{reason or 'Sin detalle'}* "
+        f"[Impacto: {impact_level}, Confianza:{confidence:.2f}, Recencia:{recency_days}d]"
+    )
+
+    curr['notes'].append(
+        f"{source.upper()} | {player} ({role}) impact={impact_level} conf={confidence:.2f} recency={recency_days}d"
+    )
+
+    curr['report_log'].append({
+        'desc': f"{desc_log}: {player} ({status})",
+        'pct': pct_log,
+        'type': 'HOME' if 'Propio' in desc_log else 'AWAY'
+    })
+
+
+
+def load_perplexity_weekly_bajas(team_adjustments, file_path="data/inputs/perplexity_bajas_semana.json"):
+    """
+    Carga bajas semanales provenientes de Perplexity en JSON estructurado.
+
+    Formato esperado:
+    {
+      "week_reference": "2026-W06",
+      "source": "perplexity",
+      "bajas": [
+        {
+          "team": "América",
+          "player": "Nombre",
+          "role": "Delantero",
+          "status": "Fuera",
+          "impact_level": "High",
+          "confidence": 0.82,
+          "recency_days": 1,
+          "reason": "Lesión muscular"
+        }
+      ]
+    }
+    """
+    if not os.path.exists(file_path):
+        print(f"INFO: {file_path} no encontrado. Se omite integración Perplexity.")
+        return team_adjustments
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    bajas = data.get('bajas', [])
+    if not isinstance(bajas, list):
+        print(f"WARNING: {file_path} tiene formato inválido ('bajas' no es lista).")
+        return team_adjustments
+
+    for item in bajas:
+        team = dl.canonical_team_name(item.get('team', ''))
+        if not team:
+            continue
+
+        _apply_scaled_adjustment(
+            team_adjustments=team_adjustments,
+            team_name=team,
+            player=item.get('player', 'Unknown'),
+            role=item.get('role', ''),
+            impact_level=item.get('impact_level', 'Low'),
+            status=item.get('status', 'Duda'),
+            reason=item.get('reason', ''),
+            source='perplexity',
+            confidence=float(item.get('confidence', 0.75)),
+            recency_days=int(item.get('recency_days', 0)),
+        )
+
+    return team_adjustments

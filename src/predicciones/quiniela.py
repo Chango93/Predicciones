@@ -12,6 +12,9 @@ def _captured_mass(lambda_home, lambda_away, max_goals):
     return mass_home * mass_away
 
 
+def choose_grid_limit(lambda_home, lambda_away, target_mass=0.995, min_goals=5, max_cap=12):
+    """
+    Selecciona tamaño de grilla adaptativo para minimizar truncamiento.
 def choose_grid_limit(lambda_home, lambda_away, target_mass=0.985, min_goals=5, max_cap=10):
     """
     Selecciona tamaño de grilla adaptativo para evitar truncamiento severo.
@@ -29,6 +32,9 @@ def optimize_pick_for_quiniela(lambda_home, lambda_away):
       - 1 pt resultado (1/X/2)
 
     EV(score) = P(resultado del score) + P(exacto score)
+
+    Nota: normaliza probabilidades por la masa capturada en grilla para
+    reducir sesgo por truncamiento en lambdas altos.
     """
     max_goals = choose_grid_limit(lambda_home, lambda_away)
 
@@ -40,7 +46,7 @@ def optimize_pick_for_quiniela(lambda_home, lambda_away):
     for h in range(max_goals + 1):
         for a in range(max_goals + 1):
             p = poisson_prob(lambda_home, h) * poisson_prob(lambda_away, a)
-            scoreline_probs.append({'h': h, 'a': a, 'score': f"{h}-{a}", 'prob': p})
+            scoreline_probs.append({'h': h, 'a': a, 'score': f"{h}-{a}", 'prob_raw': p})
             if h > a:
                 prob_home += p
             elif h == a:
@@ -48,8 +54,16 @@ def optimize_pick_for_quiniela(lambda_home, lambda_away):
             else:
                 prob_away += p
 
+    captured_mass = prob_home + prob_draw + prob_away
+    if captured_mass > 0:
+        prob_home /= captured_mass
+        prob_draw /= captured_mass
+        prob_away /= captured_mass
+
     for item in scoreline_probs:
+        p = item['prob_raw'] / captured_mass if captured_mass > 0 else 0.0
         h, a = item['h'], item['a']
+
         if h > a:
             p_result = prob_home
             pick_1x2 = '1'
@@ -60,22 +74,26 @@ def optimize_pick_for_quiniela(lambda_home, lambda_away):
             p_result = prob_away
             pick_1x2 = '2'
 
+        item['prob'] = p
         item['pick_1x2'] = pick_1x2
-        item['ev'] = p_result + item['prob']
+        item['ev'] = p_result + p
 
-    scoreline_probs.sort(key=lambda x: x['ev'], reverse=True)
-    best = scoreline_probs[0]
+    score_by_ev = sorted(scoreline_probs, key=lambda x: x['ev'], reverse=True)
+    score_by_prob = sorted(scoreline_probs, key=lambda x: x['prob'], reverse=True)
+    best = score_by_ev[0]
 
-    top_exact = sorted(scoreline_probs, key=lambda x: x['prob'], reverse=True)[:5]
+    confidence_gap = best['ev'] - score_by_ev[1]['ev'] if len(score_by_ev) > 1 else 0.0
 
     return {
         'pick_exact': best['score'],
         'pick_1x2': best['pick_1x2'],
         'ev': best['ev'],
+        'ev_confidence_gap': confidence_gap,
         'prob_home_win': prob_home,
         'prob_draw': prob_draw,
         'prob_away_win': prob_away,
-        'top_5_scorelines': top_exact,
+        'top_5_by_prob': score_by_prob[:5],
+        'top_5_by_ev': score_by_ev[:5],
         'grid_max_goals': max_goals,
-        'captured_mass': _captured_mass(lambda_home, lambda_away, max_goals),
+        'captured_mass': captured_mass,
     }
