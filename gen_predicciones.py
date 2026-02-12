@@ -13,22 +13,23 @@ def poisson_prob(lambda_val, k):
     return (lambda_val**k * exp(-lambda_val)) / factorial(k)
 
 def main():
-    print("=== GENERADOR DE PREDICCIONES JORNADA 6 ===")
+    runtime_config = config.resolve_config()
+    print(f"=== GENERADOR DE PREDICCIONES JORNADA {runtime_config.get('JORNADA', '?')} ===")
     
     # 1. Load Data/Setup
     print("Loading data...")
     print("Loading data...")
-    with open(config.CONFIG['INPUT_MATCHES'], 'r', encoding='utf-8') as f:
+    with open(runtime_config['INPUT_MATCHES'], 'r', encoding='utf-8') as f:
         matches_data = json.load(f)
         
-    stats_df = pd.read_csv(config.CONFIG['INPUT_STATS'], sep='\t')
+    stats_df = pd.read_csv(runtime_config['INPUT_STATS'], sep='\t')
     
     # 2. Parse Qualitative
     print("Parsing qualitative data...")
     # qualu_path = "Investigacion_cualitativa_jornada6.json"
-    adj_map = data_loader.load_bajas_penalties(config.CONFIG['INPUT_EVALUATION']) # Uses eval json
+    adj_map = data_loader.load_bajas_penalties(runtime_config['INPUT_EVALUATION']) # Uses eval json
     # Qualu adjust
-    adj_map = data_loader.load_qualitative_adjustments(adj_map, config.CONFIG['INPUT_QUALITATIVE'])
+    adj_map = data_loader.load_qualitative_adjustments(adj_map, runtime_config['INPUT_QUALITATIVE'])
     
     # Debug adjustments
     print("\nADJUSTMENTS APPLIED:")
@@ -38,14 +39,14 @@ def main():
 
     
     # 3. Build Stats
-    team_stats_current, _ = dl.build_team_stats_canonical(stats_df, config.CONFIG['CURRENT_TOURNAMENT'])
+    team_stats_current, _ = dl.build_team_stats_canonical(stats_df, runtime_config['CURRENT_TOURNAMENT'])
     
     # MULTI-TOURNAMENT PRIOR (Weighted)
     print("Building Multi-Tournament Weighted Prior...")
-    prior_weighted_stats = dl.build_weighted_prior_stats(stats_df, config.CONFIG)
+    prior_weighted_stats = dl.build_weighted_prior_stats(stats_df, runtime_config)
     
     # Calculate League Avgs (Current only needed for main calculation)
-    league_avg_curr = dl.calculate_league_averages_by_tournament(stats_df, config.CONFIG['CURRENT_TOURNAMENT'])
+    league_avg_curr = dl.calculate_league_averages_by_tournament(stats_df, runtime_config['CURRENT_TOURNAMENT'])
     # league_avg_prior not needed for computation anymore (baked into weighted stats) but verify signature
     
     # 4. Generate Predictions
@@ -78,8 +79,8 @@ def main():
              comp, errors = dl.compute_components_and_lambdas(
                 match, team_stats_current, 
                 prior_weighted_stats,
-                league_avg_curr, config.CONFIG,
-                config.CONFIG['SHRINKAGE_DIVISOR_ACTUAL'], match_adjustments
+                league_avg_curr, runtime_config,
+                runtime_config['SHRINKAGE_DIVISOR_ACTUAL'], match_adjustments
             )
         except Exception as e:
             print(f"CRITICAL ERROR in {home_raw}-{away_raw}: {e}")
@@ -157,7 +158,7 @@ def main():
         })
 
     # Save CSV
-    jornada = config.CONFIG.get('JORNADA', 'X')
+    jornada = runtime_config.get('JORNADA', 'X')
     out_file = f'predicciones_jornada_{jornada}_final.csv'
     df = pd.DataFrame(results)
     

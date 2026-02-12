@@ -21,31 +21,32 @@ def calculate_ev(prob_exact, prob_result):
     return prob_exact + prob_result
 
 def main():
+    runtime_config = config.resolve_config()
     print("Generando Reporte Técnico Automático...")
     
     # Load inputs
     # Load Inputs
-    with open(config.CONFIG['INPUT_MATCHES'], 'r', encoding='utf-8') as f:
+    with open(runtime_config['INPUT_MATCHES'], 'r', encoding='utf-8') as f:
         matches_data = json.load(f)
-    stats_df = pd.read_csv(config.CONFIG['INPUT_STATS'], sep='\t')
+    stats_df = pd.read_csv(runtime_config['INPUT_STATS'], sep='\t')
     
-    team_stats_current, _ = dl.build_team_stats_canonical(stats_df, config.CONFIG['CURRENT_TOURNAMENT'])
+    team_stats_current, _ = dl.build_team_stats_canonical(stats_df, runtime_config['CURRENT_TOURNAMENT'])
     # PRIOR MULTI
     print("Building Multi-Tournament Weights...")
-    prior_weighted_stats = dl.build_weighted_prior_stats(stats_df, config.CONFIG)
+    prior_weighted_stats = dl.build_weighted_prior_stats(stats_df, runtime_config)
     
-    league_avg_curr = dl.calculate_league_averages_by_tournament(stats_df, config.CONFIG['CURRENT_TOURNAMENT'])
+    league_avg_curr = dl.calculate_league_averages_by_tournament(stats_df, runtime_config['CURRENT_TOURNAMENT'])
     
     # Parse Qualitative (Now Hybrid with Synced JSON)
     # Using the new consolidated loader
-    adj_map = data_loader.load_bajas_penalties(config.CONFIG['INPUT_EVALUATION'])
-    adj_map = data_loader.load_qualitative_adjustments(adj_map, config.CONFIG['INPUT_QUALITATIVE'])
+    adj_map = data_loader.load_bajas_penalties(runtime_config['INPUT_EVALUATION'])
+    adj_map = data_loader.load_qualitative_adjustments(adj_map, runtime_config['INPUT_QUALITATIVE'])
     
     # We no longer check for 'ligamx_clausura2026_injuries.json' separately as logic is merged.   
     # OUTPUT MARKDOWN BUILDER
     md_output = []
     # ... header lines ...
-    md_output.append(f"# 🔢 Reporte Técnico: Jornada {config.CONFIG.get('JORNADA', '?')} (Liga MX)")
+    md_output.append(f"# 🔢 Reporte Técnico: Jornada {runtime_config.get('JORNADA', '?')} (Liga MX)")
     md_output.append(f"**Generado:** {datetime.now().isoformat()}")
     md_output.append(f"**Estrategia:** Maximizar Puntos (Quiniela EV)")
     md_output.append(f"**Fórmula EV:** Prob. Exacta + Prob. Resultado")
@@ -73,8 +74,8 @@ def main():
         
         comp, errors = dl.compute_components_and_lambdas(match, team_stats_current, 
                                                          prior_weighted_stats, # CHANGED
-                                                         league_avg_curr, config.CONFIG,
-                                                         config.CONFIG['SHRINKAGE_DIVISOR_ACTUAL'], match_adjustments)
+                                                         league_avg_curr, runtime_config,
+                                                         runtime_config['SHRINKAGE_DIVISOR_ACTUAL'], match_adjustments)
         
         if errors: continue
 
@@ -278,7 +279,7 @@ def main():
         md_output.append(f"| {s['match']} | **{s['pick']}** | EV: {s['ev']:.3f} | {s['trend']} |")
         
     # Write File
-    jornada = config.CONFIG.get('JORNADA', 'X')
+    jornada = runtime_config.get('JORNADA', 'X')
     out_file = f'reporte_tecnico_jornada_{jornada}.md'
     with open(out_file, 'w', encoding='utf-8') as f:
         f.write("\n".join(md_output))

@@ -1,6 +1,8 @@
 
 # src/predicciones/config.py
 
+import os
+
 def get_config(jornada):
     """
     Genera configuración dinámica por jornada.
@@ -46,8 +48,23 @@ def get_config(jornada):
         'OUTPUT_TXT': 'diagnostico_report.txt',
     }
 
-# Backwards compatibility: CONFIG default para J6
-CONFIG = get_config(6)
+
+def resolve_config(jornada=None):
+    """
+    Resuelve la configuración activa.
+
+    Precedencia:
+    1) Argumento explícito `jornada`
+    2) Variable de entorno `PRED_JORNADA`
+    3) Fallback a jornada 6
+    """
+    if jornada is None:
+        env_jornada = os.getenv('PRED_JORNADA')
+        jornada = int(env_jornada) if env_jornada else 6
+    return get_config(int(jornada))
+
+# Backwards compatibility: CONFIG default para J6 (o env si existe)
+CONFIG = resolve_config()
 
 # Diccionario de alias EXPLICITOS (mundo real es feo)
 CANONICAL_ALIASES = {

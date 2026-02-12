@@ -1,92 +1,65 @@
-# Auditoría del proceso de predicciones
+# Auditoría y optimización del proceso de predicciones
 
-## Alcance
-Esta auditoría revisa el flujo canónico (`run_pipeline.py`), la lógica de cálculo en `src/predicciones`, y los archivos efectivamente consumidos por los scripts de generación.
+## Estado actual (post-optimización)
+Se implementó un flujo canónico más robusto y explícito para ejecutar predicciones, reporte técnico y diagnóstico en una sola corrida controlada.
 
-## Workflow real (intención del proyecto)
-1. `run_pipeline.py` valida imports y ejecuta 3 pasos en secuencia:
+## Workflow canónico definitivo
+1. `run_pipeline.py --jornada <N>`
+2. Preflight automático:
+   - Validación de import/runtime del core
+   - Validación de dependencias (`pandas`, `scipy`)
+   - Validación de inputs requeridos por jornada
+3. Ejecución secuencial:
    - `gen_predicciones.py`
    - `gen_reporte_tecnico.py`
    - `diagnostico_lambda.py`
-2. Los tres scripts consumen el núcleo compartido en `src/predicciones/core.py`.
-3. Todos usan `src/predicciones/config.py` (configuración global `CONFIG`, actualmente fija en jornada 6).
-4. Los ajustes cualitativos y bajas se consolidan vía `src/predicciones/data.py`.
+4. Generación de `fingerprint_jornada_<N>.json` con hashes de entradas/salidas.
 
-## Lógica funcional por módulo
-- **Core (`src/predicciones/core.py`)**
-  - Normalización/canonicalización de equipos.
-  - Construcción de stats por torneo.
-  - Priors multi-torneo con pesos y caché (`data/processed/prior_cache_<hash>.json`).
-  - Cálculo central de lambdas: suavizado de medias de liga, EB por tasas, blending dinámico, clamps y ajustes por contexto.
+## Lógica consolidada
+- La lógica de cálculo permanece centralizada en `src/predicciones/core.py`.
+- Los scripts consumidores usan configuración dinámica por jornada mediante `resolve_config()`.
+- `run_pipeline.py` propaga `PRED_JORNADA` a todos los subprocesos para mantener consistencia de configuración.
 
-- **Predicciones (`gen_predicciones.py`)**
-  - Carga partidos, stats y ajustes (bajas + investigación cualitativa).
-  - Calcula lambdas por partido con `compute_components_and_lambdas`.
-  - Simula grilla Poisson 0–5 para obtener probabilidades 1X2, marcador exacto y EV.
-  - Exporta `predicciones_jornada_<N>_final.csv`.
-
-- **Reporte (`gen_reporte_tecnico.py`)**
-  - Reutiliza la misma lógica del core para reproducibilidad del análisis.
-  - Genera Markdown técnico con picks, desgloses de ajustes y ranking EV.
-  - Exporta `reporte_tecnico_jornada_<N>.md`.
-
-- **Diagnóstico (`diagnostico_lambda.py`)**
-  - Ejecuta validaciones fail-fast (duplicados, sanidad de lambdas, cobertura, etc.).
-  - Exporta `diagnostico_lambda_components.csv` y `diagnostico_report.txt`.
-
-## Archivos que **sí** utiliza el proceso (ruta actual)
-### Inputs principales (desde `config.CONFIG`)
-- `jornada_6_final.json` (partidos)
-- `Stats_liga_mx.json` (histórico para stats/prior)
-- `evaluacion_bajas.json` (bajas estructuradas)
-- `Investigacion_cualitativa_jornada6.json` (contexto cualitativo)
-
-### Código realmente involucrado
+## Archivos realmente involucrados
+### Ejecutables canónicos
 - `run_pipeline.py`
 - `gen_predicciones.py`
 - `gen_reporte_tecnico.py`
 - `diagnostico_lambda.py`
+
+### Librería activa
 - `src/predicciones/config.py`
 - `src/predicciones/core.py`
 - `src/predicciones/data.py`
 - `src/predicciones/utils.py`
 
-### Outputs esperados
-- `predicciones_jornada_6_final.csv`
-- `reporte_tecnico_jornada_6.md`
+### Inputs requeridos por jornada
+- `jornada_<N>_final.json`
+- `Investigacion_cualitativa_jornada<N>.json`
+- `evaluacion_bajas.json`
+- `Stats_liga_mx.json`
+
+### Outputs
+- `predicciones_jornada_<N>_final.csv`
+- `reporte_tecnico_jornada_<N>.md`
 - `diagnostico_lambda_components.csv`
 - `diagnostico_report.txt`
-- `fingerprint_jornada_6.json` (si el pipeline llega al final)
+- `fingerprint_jornada_<N>.json`
 
-## Incongruencias detectadas
-1. **`run_pipeline.py` no puede completar su propio final**:
-   - Usa `json.dump(...)` pero no importa `json`.
-   - Usa `timestamp_start` al final, pero nunca se define.
+## Incongruencias corregidas
+- `run_pipeline.py` ya importa `json`.
+- `run_pipeline.py` ya define `timestamp_start`.
+- Se agregó preflight de dependencias para fallar temprano con mensaje claro.
+- Se parametrizó jornada para evitar dependencia rígida de `CONFIG = get_config(6)`.
 
-2. **Guardia legacy parcial**:
-   - `check_legacy_guard()` revisa `diagnostico_visitante.py` y `modelo.py` en raíz.
-   - Existe lógica legacy dentro de `/legacy`, por lo que la guardia no previene todas las rutas de ejecución fuera del flujo canónico.
+## Código no involucrado (oculto)
+Los utilitarios fuera del flujo canónico se movieron a `legacy/unused_tools/` para reducir ruido operativo y evitar ejecuciones accidentales.
 
-3. **Dependencia de entorno no resuelta**:
-   - El pipeline falla de entrada si no está instalado `pandas`.
-   - Actualmente no hay validación de dependencias previa ni archivo de requirements en este chequeo.
+## Recomendación operativa
+Usar exclusivamente:
 
-4. **Config fija a jornada 6**:
-   - Existe `get_config(jornada)`, pero el flujo productivo usa `CONFIG = get_config(6)` por default.
-   - Sin sobreescritura explícita, todo el proceso opera jornada 6 aunque existan otros JSON de jornada.
+```bash
+python run_pipeline.py --jornada 6
+```
 
-5. **Ruido de mantenimiento en scripts**:
-   - Comentarios intermedios en `run_pipeline.py` reflejan dudas sobre outputs (`OUTPUT_CSV` vs entregables principales), lo cual sugiere deuda técnica documental.
-
-## Riesgo/impacto
-- Riesgo alto de falsa sensación de “pipeline canónico operativo” cuando en realidad no finaliza en un entorno sin dependencias completas.
-- Riesgo medio de ejecución inconsistente por mezcla de scripts activos y legacy.
-- Riesgo medio de errores operativos al cambiar de jornada por configuración hardcodeada.
-
-## Recomendación de workflow objetivo
-1. Parametrizar jornada desde CLI/ENV y generar `CONFIG` dinámico.
-2. Agregar preflight de dependencias (pandas/scipy) antes de ejecutar pasos.
-3. Corregir `run_pipeline.py` (`import json`, `timestamp_start`).
-4. Definir manifest de entradas/salidas por jornada y validarlo en preflight.
-5. Mantener `legacy/` fuera de cualquier path ejecutable y documentar oficialmente el flujo en README.
-
+y tratar el resto de scripts fuera del flujo como soporte histórico o tooling secundario.
