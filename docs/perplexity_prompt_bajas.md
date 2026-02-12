@@ -18,6 +18,8 @@ Incluir solo bajas vigentes y jugadores correctos para los partidos de la jornad
 5. Excluye noticias viejas/no confirmadas.
 6. Si una noticia tiene más de 21 días sin confirmación reciente, no la incluyas.
 7. Si no puedes confirmar vigencia para el siguiente partido, marca `is_active_for_next_match: false`.
+8. No usar la página https://www.lesionadosysuspendidos.mx.
+
 
 ## Verificación mínima requerida por registro
 - Debe tener al menos una fuente confiable reciente.
