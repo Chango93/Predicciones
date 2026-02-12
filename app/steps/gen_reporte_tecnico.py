@@ -89,7 +89,6 @@ def main():
         
         # --- QUINIELA METRICS ---
         top_5 = quiniela['top_5_by_prob']
-        top_5 = quiniela['top_5_scorelines']
         pick_exact = quiniela['pick_exact']
         pick_1x2_raw = quiniela['pick_1x2']
         pick_1x2 = {'1': '1 (Local)', 'X': 'X (Empate)', '2': '2 (Visita)'}[pick_1x2_raw]
@@ -250,13 +249,21 @@ def main():
     for s in summary_picks:
         md_output.append(f"| {s['match']} | **{s['pick']}** | EV: {s['ev']:.3f} | {s['trend']} |")
         
-    # Write File
+    # Write File (outputs + copia en raíz para consulta rápida)
     jornada = runtime_config.get('JORNADA', 'X')
     out_file = f'outputs/reporte_tecnico_jornada_{jornada}.md'
+    root_file = f'reporte_tecnico_jornada_{jornada}.md'
+
+    report_content = "\n".join(md_output)
+
     with open(out_file, 'w', encoding='utf-8') as f:
-        f.write("\n".join(md_output))
-        
+        f.write(report_content)
+
+    with open(root_file, 'w', encoding='utf-8') as f:
+        f.write(report_content)
+
     print(f"Reporte generado: {out_file}")
+    print(f"Copia en raíz: {root_file}")
 
 if __name__ == "__main__":
     try:

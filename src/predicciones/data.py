@@ -406,6 +406,37 @@ def load_perplexity_weekly_bajas(team_adjustments, file_path="data/inputs/perple
         if not team:
             continue
 
+        # Control anti-desactualización y consistencia de plantel actual:
+        # - Si Perplexity marca explícitamente que NO está activo para el siguiente partido, se omite.
+        # - Si la noticia es vieja (>21 días) y no hay confirmación de vigencia, se omite.
+        # - Si el jugador aparece retirado/transferido fuera o con equipo actual distinto, se omite.
+        is_active = item.get('is_active_for_next_match', None)
+        recency_days = int(item.get('recency_days', 0))
+
+        if is_active is False:
+            continue
+
+        if bool(item.get('is_retired', False)):
+            continue
+
+        if bool(item.get('is_transferred_out', False)):
+            continue
+
+        current_team = dl.canonical_team_name(item.get('current_team', ''))
+        if current_team and current_team != team:
+            continue
+
+        verification_status = str(item.get('verification_status', 'confirmed')).lower()
+        if verification_status in ['stale', 'mismatch', 'unverified']:
+            continue
+
+        if recency_days > 21 and is_active is not True:
+            continue
+
+        confidence = float(item.get('confidence', 0.75))
+        if recency_days > 14 and is_active is not True:
+            confidence = min(confidence, 0.55)
+
         _apply_scaled_adjustment(
             team_adjustments=team_adjustments,
             team_name=team,
@@ -415,6 +446,8 @@ def load_perplexity_weekly_bajas(team_adjustments, file_path="data/inputs/perple
             status=item.get('status', 'Duda'),
             reason=item.get('reason', ''),
             source='perplexity',
+            confidence=confidence,
+            recency_days=recency_days,
             confidence=float(item.get('confidence', 0.75)),
             recency_days=int(item.get('recency_days', 0)),
         )

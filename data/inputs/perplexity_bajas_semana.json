@@ -2,5 +2,23 @@
   "week_reference": "2026-W06",
   "source": "perplexity",
   "generated_at": "2026-02-12T12:00:00Z",
-  "bajas": []
+  "bajas": [
+    {
+      "team": "",
+      "current_team": "",
+      "player": "",
+      "role": "",
+      "status": "",
+      "impact_level": "Low",
+      "confidence": 0.75,
+      "recency_days": 0,
+      "is_active_for_next_match": false,
+      "is_retired": false,
+      "is_transferred_out": false,
+      "verification_status": "unverified",
+      "last_verified_at": "",
+      "reason": "",
+      "evidence": ""
+    }
+  ]
 }

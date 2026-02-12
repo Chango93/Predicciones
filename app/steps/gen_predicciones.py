@@ -146,7 +146,6 @@ def main():
             'prob_home_win', 'prob_draw', 'prob_away_win', 
             'lambda_home_final', 'lambda_away_final', 
             'top_5_scorelines', 'top_5_ev', 'ev_confidence_gap', 'grid_max_goals', 'captured_mass', 'qualitative_notes']
-            'top_5_scorelines', 'grid_max_goals', 'captured_mass', 'qualitative_notes']
     
     # Ensure all columns exist
     for c in cols:
