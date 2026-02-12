@@ -5,12 +5,8 @@ import pandas as pd
 from datetime import datetime
 import src.predicciones.config as config
 import src.predicciones.core as dl  # Alias dl to minimize refactor
-from math import exp, factorial
-
 import src.predicciones.data as data_loader
-
-def poisson_prob(lambda_val, k):
-    return (lambda_val**k * exp(-lambda_val)) / factorial(k)
+import src.predicciones.quiniela as qx
 
 def main():
     runtime_config = config.resolve_config()
@@ -93,40 +89,15 @@ def main():
         l_home = comp['lambda_home_final']
         l_away = comp['lambda_away_final']
         
-        # Simulate Score Grid (0-5 goals)
-        prob_home_win = 0
-        prob_draw = 0
-        prob_away_win = 0
-        
-        scoreline_probs = []
-        
-        for h in range(6):
-            for a in range(6):
-                p = poisson_prob(l_home, h) * poisson_prob(l_away, a)
-                scoreline_probs.append({'score': f"{h}-{a}", 'prob': p})
-                
-                if h > a: prob_home_win += p
-                elif h == a: prob_draw += p
-                else: prob_away_win += p
-        
-        # Metrics for Quiniela
-        scoreline_probs.sort(key=lambda x: x['prob'], reverse=True)
-        top_5 = scoreline_probs[:5]
-        
-        # Pick Exact (Most probable exact score)
-        pick_exact = top_5[0]['score']
-        
-        # Pick 1X2 (Result prediction)
-        if prob_home_win > max(prob_draw, prob_away_win):
-            pick_1x2 = '1'
-        elif prob_away_win > max(prob_home_win, prob_draw):
-            pick_1x2 = '2'
-        else:
-            pick_1x2 = 'X'
-            
-        # Expected Value metric (Probability of Exact + Probability of Result)
-        # This approximates a "confidence score" for the combined prediction
-        ev = top_5[0]['prob'] + max(prob_home_win, prob_draw, prob_away_win)
+        # Optimize pick for quiniela scoring (2 exacto / 1 resultado)
+        quiniela = qx.optimize_pick_for_quiniela(l_home, l_away)
+        prob_home_win = quiniela['prob_home_win']
+        prob_draw = quiniela['prob_draw']
+        prob_away_win = quiniela['prob_away_win']
+        top_5 = quiniela['top_5_scorelines']
+        pick_exact = quiniela['pick_exact']
+        pick_1x2 = quiniela['pick_1x2']
+        ev = quiniela['ev']
         
         # Qualitative Notes
         notes_home = adj_map.get(home_canon, {}).get('notes', [])
@@ -137,7 +108,7 @@ def main():
         print(f"\n{home_raw} vs {away_raw}")
         print(f"  Lambda Final: {l_home:.2f} - {l_away:.2f}")
         print(f"  Probs: 1({prob_home_win:.1%}) X({prob_draw:.1%}) 2({prob_away_win:.1%})")
-        print(f"  Pick: {pick_1x2} (Exact: {pick_exact}) | EV: {ev:.3f}")
+        print(f"  Pick: {pick_1x2} (Exact: {pick_exact}) | EV: {ev:.3f} | Mass: {quiniela['captured_mass']:.3f}")
         
         results.append({
             'home_team_canonical': home_canon,
@@ -151,6 +122,8 @@ def main():
             'pick_exact': pick_exact,
             'pick_1x2': pick_1x2,
             'ev': ev,
+            'grid_max_goals': quiniela['grid_max_goals'],
+            'captured_mass': quiniela['captured_mass'],
             'qualitative_notes': notes_compact,
             # Legacy fields for quick view
             'L_Home_Final': l_home,
@@ -166,7 +139,7 @@ def main():
     cols = ['home_team_canonical', 'away_team_canonical', 'pick_1x2', 'pick_exact', 'ev', 
             'prob_home_win', 'prob_draw', 'prob_away_win', 
             'lambda_home_final', 'lambda_away_final', 
-            'top_5_scorelines', 'qualitative_notes']
+            'top_5_scorelines', 'grid_max_goals', 'captured_mass', 'qualitative_notes']
     
     # Ensure all columns exist
     for c in cols:

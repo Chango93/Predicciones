@@ -5,20 +5,13 @@ import pandas as pd
 from datetime import datetime
 import src.predicciones.core as dl
 import src.predicciones.config as config
-from math import exp, factorial, isnan
+from math import isnan
 
 # === CONFIG (Same as gen_predicciones) ===
 # ... (Repeated logic for parsing will be refined to capture text)
 
 import src.predicciones.data as data_loader
-
-# Local helper for EV calculation
-def poisson_prob(lambda_val, k):
-    return (lambda_val**k * exp(-lambda_val)) / factorial(k)
-
-def calculate_ev(prob_exact, prob_result):
-    # EV = P(Exact) + P(Result)
-    return prob_exact + prob_result
+import src.predicciones.quiniela as qx
 
 def main():
     runtime_config = config.resolve_config()
@@ -84,44 +77,22 @@ def main():
         l_home_base = comp['lambda_home_base']
         l_away_base = comp['lambda_away_base']
         
-        # Probs
-        grid = {}
-        prob_home = 0
-        prob_draw = 0
-        prob_away = 0
-        
-        for h in range(6):
-            for a in range(6):
-                p = poisson_prob(l_home, h) * poisson_prob(l_away, a)
-                grid[(h,a)] = p
-                if h > a: prob_home += p
-                elif h == a: prob_draw += p
-                else: prob_away += p
-        
+        # Probs + pick optimization for quiniela scoring
+        quiniela = qx.optimize_pick_for_quiniela(l_home, l_away)
+        prob_home = quiniela['prob_home_win']
+        prob_draw = quiniela['prob_draw']
+        prob_away = quiniela['prob_away_win']
+
         # Build Match Report Section
         md_output.append(f"\n## {home_raw} vs. {away_raw}")
         
         # --- QUINIELA METRICS ---
-        scoreline_probs = []
-        for (h,a), p in grid.items():
-            scoreline_probs.append({'score': f"{h}-{a}", 'prob': p})
-            
-        scoreline_probs.sort(key=lambda x: x['prob'], reverse=True)
-        top_5 = scoreline_probs[:5]
-        
-        # Pick 1X2
-        if prob_home > max(prob_draw, prob_away):
-            pick_1x2 = '1 (Local)'
-            prob_res = prob_home
-        elif prob_away > max(prob_home, prob_draw):
-            pick_1x2 = '2 (Visita)'
-            prob_res = prob_away
-        else:
-            pick_1x2 = 'X (Empate)'
-            prob_res = prob_draw
-            
-        pick_exact = top_5[0]['score']
-        ev = top_5[0]['prob'] + prob_res
+        top_5 = quiniela['top_5_scorelines']
+        pick_exact = quiniela['pick_exact']
+        pick_1x2_raw = quiniela['pick_1x2']
+        pick_1x2 = {'1': '1 (Local)', 'X': 'X (Empate)', '2': '2 (Visita)'}[pick_1x2_raw]
+        prob_res = {'1': prob_home, 'X': prob_draw, '2': prob_away}[pick_1x2_raw]
+        ev = quiniela['ev']
         
         md_output.append(f"\n### 🎯 Pronóstico Quiniela")
         md_output.append(f"- **Pick 1X2:** {pick_1x2} (Prob: {prob_res:.1%})")
@@ -227,32 +198,30 @@ def main():
         md_output.append(f"| Marcador | Tipo | P.Exacta | P.Gral | **Valor Esperado** |")
         md_output.append(f"| :--- | :--- | :--- | :--- | :--- |")
         
-        # Generate all options and sort
+        # Generate options from grilla top (ordenadas por EV real de quiniela)
         options = []
-        for (h, a), p_exact in grid.items():
-            if p_exact < 0.03: continue # Filter low prob
-            
-            p_result = 0
-            res_type = ""
-            if h > a: 
+        for item in quiniela['top_5_scorelines']:
+            h, a = item['h'], item['a']
+            p_exact = item['prob']
+
+            if h > a:
                 p_result = prob_home
                 res_type = "HOME"
-            elif h == a: 
+            elif h == a:
                 p_result = prob_draw
                 res_type = "DRAW"
-            else: 
+            else:
                 p_result = prob_away
                 res_type = "AWAY"
-                
-            ev = calculate_ev(p_exact, p_result)
+
             options.append({
-                'score': f"{h}-{a}",
+                'score': item['score'],
                 'type': res_type,
                 'p_exact': p_exact,
                 'p_gral': p_result,
-                'ev': ev
+                'ev': p_result + p_exact
             })
-            
+
         # Sort by EV descending
         options.sort(key=lambda x: x['ev'], reverse=True)
         
