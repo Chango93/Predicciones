@@ -40,12 +40,12 @@ def get_config(jornada):
         'CLAMP_LAMBDA_MAX': 3.20,
         
         # Dynamic paths based on jornada
-        'INPUT_MATCHES': f'jornada_{jornada}_final.json',
-        'INPUT_QUALITATIVE': f'Investigacion_cualitativa_jornada{jornada}.json',
-        'INPUT_EVALUATION': 'evaluacion_bajas.json',  # Común a todas
-        'INPUT_STATS': 'Stats_liga_mx.json',  # Común a todas
-        'OUTPUT_CSV': 'diagnostico_lambda_components.csv',
-        'OUTPUT_TXT': 'diagnostico_report.txt',
+        'INPUT_MATCHES': f'data/inputs/jornada_{jornada}_final.json',
+        'INPUT_QUALITATIVE': f'data/inputs/Investigacion_cualitativa_jornada{jornada}.json',
+        'INPUT_EVALUATION': 'data/inputs/evaluacion_bajas.json',  # Común a todas
+        'INPUT_STATS': 'data/inputs/Stats_liga_mx.json',  # Común a todas
+        'OUTPUT_CSV': 'outputs/diagnostico_lambda_components.csv',
+        'OUTPUT_TXT': 'outputs/diagnostico_report.txt',
     }
 
 

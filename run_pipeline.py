@@ -163,13 +163,15 @@ def main():
         print("\nPipeline ABORTADO por inputs faltantes.")
         sys.exit(1)
 
+    os.makedirs("outputs", exist_ok=True)
+
     env = os.environ.copy()
     env["PRED_JORNADA"] = str(cfg['JORNADA'])
 
     steps = [
-        ("gen_predicciones.py", "Generación de CSV de Predicciones"),
-        ("gen_reporte_tecnico.py", "Generación de Reporte Markdown"),
-        ("diagnostico_lambda.py", "Auditoría de Sistema (Diagnóstico)"),
+        ("app/steps/gen_predicciones.py", "Generación de CSV de Predicciones"),
+        ("app/steps/gen_reporte_tecnico.py", "Generación de Reporte Markdown"),
+        ("app/steps/diagnostico_lambda.py", "Auditoría de Sistema (Diagnóstico)"),
     ]
 
     for script, desc in steps:
@@ -202,8 +204,8 @@ def main():
     print("CALCULO DE HASHES SHA-256 (Determinismo)")
 
     files_to_hash = [
-        f"predicciones_jornada_{jornada}_final.csv",
-        f"reporte_tecnico_jornada_{jornada}.md",
+        f"outputs/predicciones_jornada_{jornada}_final.csv",
+        f"outputs/reporte_tecnico_jornada_{jornada}.md",
         cfg['OUTPUT_TXT'],
         cfg['OUTPUT_CSV'],
     ]
@@ -213,7 +215,7 @@ def main():
         fingerprint['output_hashes'][filepath] = file_hash
         print(f"  {filepath:<35} : {file_hash}")
 
-    fp_filename = f"fingerprint_jornada_{jornada}.json"
+    fp_filename = f"outputs/fingerprint_jornada_{jornada}.json"
     with open(fp_filename, 'w', encoding='utf-8') as fp_file:
         json.dump(fingerprint, fp_file, indent=2)
     print(f"\n[OK] Fingerprint guardado: {fp_filename}")

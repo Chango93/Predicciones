@@ -249,7 +249,7 @@ def main():
         
     # Write File
     jornada = runtime_config.get('JORNADA', 'X')
-    out_file = f'reporte_tecnico_jornada_{jornada}.md'
+    out_file = f'outputs/reporte_tecnico_jornada_{jornada}.md'
     with open(out_file, 'w', encoding='utf-8') as f:
         f.write("\n".join(md_output))
         

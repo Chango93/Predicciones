@@ -132,7 +132,7 @@ def main():
 
     # Save CSV
     jornada = runtime_config.get('JORNADA', 'X')
-    out_file = f'predicciones_jornada_{jornada}_final.csv'
+    out_file = f'outputs/predicciones_jornada_{jornada}_final.csv'
     df = pd.DataFrame(results)
     
     # Reorder columns for usability
