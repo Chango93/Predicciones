@@ -89,6 +89,7 @@ def main():
         
         # --- QUINIELA METRICS ---
         top_5 = quiniela['top_5_by_prob']
+        top_5 = quiniela['top_5_scorelines']
         pick_exact = quiniela['pick_exact']
         pick_1x2_raw = quiniela['pick_1x2']
         pick_1x2 = {'1': '1 (Local)', 'X': 'X (Empate)', '2': '2 (Visita)'}[pick_1x2_raw]

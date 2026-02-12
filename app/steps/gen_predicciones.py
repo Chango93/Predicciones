@@ -125,6 +125,9 @@ def main():
             'pick_1x2': pick_1x2,
             'ev': ev,
             'ev_confidence_gap': quiniela['ev_confidence_gap'],
+            'pick_exact': pick_exact,
+            'pick_1x2': pick_1x2,
+            'ev': ev,
             'grid_max_goals': quiniela['grid_max_goals'],
             'captured_mass': quiniela['captured_mass'],
             'qualitative_notes': notes_compact,
@@ -143,6 +146,7 @@ def main():
             'prob_home_win', 'prob_draw', 'prob_away_win', 
             'lambda_home_final', 'lambda_away_final', 
             'top_5_scorelines', 'top_5_ev', 'ev_confidence_gap', 'grid_max_goals', 'captured_mass', 'qualitative_notes']
+            'top_5_scorelines', 'grid_max_goals', 'captured_mass', 'qualitative_notes']
     
     # Ensure all columns exist
     for c in cols:

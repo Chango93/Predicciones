@@ -15,6 +15,9 @@ def _captured_mass(lambda_home, lambda_away, max_goals):
 def choose_grid_limit(lambda_home, lambda_away, target_mass=0.995, min_goals=5, max_cap=12):
     """
     Selecciona tamaño de grilla adaptativo para minimizar truncamiento.
+def choose_grid_limit(lambda_home, lambda_away, target_mass=0.985, min_goals=5, max_cap=10):
+    """
+    Selecciona tamaño de grilla adaptativo para evitar truncamiento severo.
     """
     for g in range(min_goals, max_cap + 1):
         if _captured_mass(lambda_home, lambda_away, g) >= target_mass:
