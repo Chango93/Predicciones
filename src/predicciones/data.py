@@ -448,6 +448,8 @@ def load_perplexity_weekly_bajas(team_adjustments, file_path="data/inputs/perple
             source='perplexity',
             confidence=confidence,
             recency_days=recency_days,
+            confidence=float(item.get('confidence', 0.75)),
+            recency_days=int(item.get('recency_days', 0)),
         )
 
     return team_adjustments
