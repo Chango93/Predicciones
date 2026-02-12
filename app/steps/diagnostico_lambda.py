@@ -13,7 +13,7 @@ import traceback
 import src.predicciones.core as core
 import src.predicciones.config as cfg
 
-CONFIG = cfg.CONFIG
+CONFIG = cfg.resolve_config()
 
 output_buffer = StringIO()
 

@@ -5,47 +5,42 @@ import pandas as pd
 from datetime import datetime
 import src.predicciones.core as dl
 import src.predicciones.config as config
-from math import exp, factorial, isnan
+from math import isnan
 
 # === CONFIG (Same as gen_predicciones) ===
 # ... (Repeated logic for parsing will be refined to capture text)
 
 import src.predicciones.data as data_loader
-
-# Local helper for EV calculation
-def poisson_prob(lambda_val, k):
-    return (lambda_val**k * exp(-lambda_val)) / factorial(k)
-
-def calculate_ev(prob_exact, prob_result):
-    # EV = P(Exact) + P(Result)
-    return prob_exact + prob_result
+import src.predicciones.quiniela as qx
 
 def main():
+    runtime_config = config.resolve_config()
     print("Generando Reporte Técnico Automático...")
     
     # Load inputs
     # Load Inputs
-    with open(config.CONFIG['INPUT_MATCHES'], 'r', encoding='utf-8') as f:
+    with open(runtime_config['INPUT_MATCHES'], 'r', encoding='utf-8') as f:
         matches_data = json.load(f)
-    stats_df = pd.read_csv(config.CONFIG['INPUT_STATS'], sep='\t')
+    stats_df = pd.read_csv(runtime_config['INPUT_STATS'], sep='\t')
     
-    team_stats_current, _ = dl.build_team_stats_canonical(stats_df, config.CONFIG['CURRENT_TOURNAMENT'])
+    team_stats_current, _ = dl.build_team_stats_canonical(stats_df, runtime_config['CURRENT_TOURNAMENT'])
     # PRIOR MULTI
     print("Building Multi-Tournament Weights...")
-    prior_weighted_stats = dl.build_weighted_prior_stats(stats_df, config.CONFIG)
+    prior_weighted_stats = dl.build_weighted_prior_stats(stats_df, runtime_config)
     
-    league_avg_curr = dl.calculate_league_averages_by_tournament(stats_df, config.CONFIG['CURRENT_TOURNAMENT'])
+    league_avg_curr = dl.calculate_league_averages_by_tournament(stats_df, runtime_config['CURRENT_TOURNAMENT'])
     
     # Parse Qualitative (Now Hybrid with Synced JSON)
     # Using the new consolidated loader
-    adj_map = data_loader.load_bajas_penalties(config.CONFIG['INPUT_EVALUATION'])
-    adj_map = data_loader.load_qualitative_adjustments(adj_map, config.CONFIG['INPUT_QUALITATIVE'])
+    adj_map = data_loader.load_bajas_penalties(runtime_config['INPUT_EVALUATION'])
+    adj_map = data_loader.load_perplexity_weekly_bajas(adj_map, runtime_config.get('INPUT_PERPLEXITY_BAJAS', 'data/inputs/perplexity_bajas_semana.json'))
+    adj_map = data_loader.load_qualitative_adjustments(adj_map, runtime_config['INPUT_QUALITATIVE'])
     
     # We no longer check for 'ligamx_clausura2026_injuries.json' separately as logic is merged.   
     # OUTPUT MARKDOWN BUILDER
     md_output = []
     # ... header lines ...
-    md_output.append(f"# 🔢 Reporte Técnico: Jornada {config.CONFIG.get('JORNADA', '?')} (Liga MX)")
+    md_output.append(f"# 🔢 Reporte Técnico: Jornada {runtime_config.get('JORNADA', '?')} (Liga MX)")
     md_output.append(f"**Generado:** {datetime.now().isoformat()}")
     md_output.append(f"**Estrategia:** Maximizar Puntos (Quiniela EV)")
     md_output.append(f"**Fórmula EV:** Prob. Exacta + Prob. Resultado")
@@ -73,8 +68,8 @@ def main():
         
         comp, errors = dl.compute_components_and_lambdas(match, team_stats_current, 
                                                          prior_weighted_stats, # CHANGED
-                                                         league_avg_curr, config.CONFIG,
-                                                         config.CONFIG['SHRINKAGE_DIVISOR_ACTUAL'], match_adjustments)
+                                                         league_avg_curr, runtime_config,
+                                                         runtime_config['SHRINKAGE_DIVISOR_ACTUAL'], match_adjustments)
         
         if errors: continue
 
@@ -83,49 +78,28 @@ def main():
         l_home_base = comp['lambda_home_base']
         l_away_base = comp['lambda_away_base']
         
-        # Probs
-        grid = {}
-        prob_home = 0
-        prob_draw = 0
-        prob_away = 0
-        
-        for h in range(6):
-            for a in range(6):
-                p = poisson_prob(l_home, h) * poisson_prob(l_away, a)
-                grid[(h,a)] = p
-                if h > a: prob_home += p
-                elif h == a: prob_draw += p
-                else: prob_away += p
-        
+        # Probs + pick optimization for quiniela scoring
+        quiniela = qx.optimize_pick_for_quiniela(l_home, l_away)
+        prob_home = quiniela['prob_home_win']
+        prob_draw = quiniela['prob_draw']
+        prob_away = quiniela['prob_away_win']
+
         # Build Match Report Section
         md_output.append(f"\n## {home_raw} vs. {away_raw}")
         
         # --- QUINIELA METRICS ---
-        scoreline_probs = []
-        for (h,a), p in grid.items():
-            scoreline_probs.append({'score': f"{h}-{a}", 'prob': p})
-            
-        scoreline_probs.sort(key=lambda x: x['prob'], reverse=True)
-        top_5 = scoreline_probs[:5]
-        
-        # Pick 1X2
-        if prob_home > max(prob_draw, prob_away):
-            pick_1x2 = '1 (Local)'
-            prob_res = prob_home
-        elif prob_away > max(prob_home, prob_draw):
-            pick_1x2 = '2 (Visita)'
-            prob_res = prob_away
-        else:
-            pick_1x2 = 'X (Empate)'
-            prob_res = prob_draw
-            
-        pick_exact = top_5[0]['score']
-        ev = top_5[0]['prob'] + prob_res
+        top_5 = quiniela['top_5_by_prob']
+        pick_exact = quiniela['pick_exact']
+        pick_1x2_raw = quiniela['pick_1x2']
+        pick_1x2 = {'1': '1 (Local)', 'X': 'X (Empate)', '2': '2 (Visita)'}[pick_1x2_raw]
+        prob_res = {'1': prob_home, 'X': prob_draw, '2': prob_away}[pick_1x2_raw]
+        ev = quiniela['ev']
         
         md_output.append(f"\n### 🎯 Pronóstico Quiniela")
         md_output.append(f"- **Pick 1X2:** {pick_1x2} (Prob: {prob_res:.1%})")
         md_output.append(f"- **Pick Exacto:** {pick_exact} (Prob: {top_5[0]['prob']:.1%})")
         md_output.append(f"- **Valor Esperado (EV):** {ev:.3f}")
+        md_output.append(f"- **Confianza del pick (gap EV):** {quiniela['ev_confidence_gap']:.3f}")
         md_output.append(f"- **Top 5 Marcadores:**")
         for s in top_5:
             md_output.append(f"  - {s['score']}: {s['prob']:.1%}")
@@ -226,32 +200,30 @@ def main():
         md_output.append(f"| Marcador | Tipo | P.Exacta | P.Gral | **Valor Esperado** |")
         md_output.append(f"| :--- | :--- | :--- | :--- | :--- |")
         
-        # Generate all options and sort
+        # Generate options from grilla top (ordenadas por EV real de quiniela)
         options = []
-        for (h, a), p_exact in grid.items():
-            if p_exact < 0.03: continue # Filter low prob
-            
-            p_result = 0
-            res_type = ""
-            if h > a: 
+        for item in quiniela['top_5_by_ev']:
+            h, a = item['h'], item['a']
+            p_exact = item['prob']
+
+            if h > a:
                 p_result = prob_home
                 res_type = "HOME"
-            elif h == a: 
+            elif h == a:
                 p_result = prob_draw
                 res_type = "DRAW"
-            else: 
+            else:
                 p_result = prob_away
                 res_type = "AWAY"
-                
-            ev = calculate_ev(p_exact, p_result)
+
             options.append({
-                'score': f"{h}-{a}",
+                'score': item['score'],
                 'type': res_type,
                 'p_exact': p_exact,
                 'p_gral': p_result,
-                'ev': ev
+                'ev': p_result + p_exact
             })
-            
+
         # Sort by EV descending
         options.sort(key=lambda x: x['ev'], reverse=True)
         
@@ -277,13 +249,21 @@ def main():
     for s in summary_picks:
         md_output.append(f"| {s['match']} | **{s['pick']}** | EV: {s['ev']:.3f} | {s['trend']} |")
         
-    # Write File
-    jornada = config.CONFIG.get('JORNADA', 'X')
-    out_file = f'reporte_tecnico_jornada_{jornada}.md'
+    # Write File (outputs + copia en raíz para consulta rápida)
+    jornada = runtime_config.get('JORNADA', 'X')
+    out_file = f'outputs/reporte_tecnico_jornada_{jornada}.md'
+    root_file = f'reporte_tecnico_jornada_{jornada}.md'
+
+    report_content = "\n".join(md_output)
+
     with open(out_file, 'w', encoding='utf-8') as f:
-        f.write("\n".join(md_output))
-        
+        f.write(report_content)
+
+    with open(root_file, 'w', encoding='utf-8') as f:
+        f.write(report_content)
+
     print(f"Reporte generado: {out_file}")
+    print(f"Copia en raíz: {root_file}")
 
 if __name__ == "__main__":
     try:
