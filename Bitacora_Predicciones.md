@@ -7,7 +7,7 @@ Este documento centraliza el historial de desempeño, resultados reales y análi
 | Jornada | Puntos | Exactos | Ranking Global | Punto Totales | Aciertos (Tendencia) |
 | :---: | :---: | :---: | :---: | :---: | :---: |
 | **5** | **4** | 0 | **20º** | 19 | 4/9 (44%) |
-| **4** | **5** | 0 | -- | -- | 5/9 (55%) |
+| **4** | **5** | 0 | -- | -- | 5/9 (55%) | 
 
 ---
 

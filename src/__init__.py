@@ -1,2 +1,2 @@
-# Liga MX Prediction System - Core Package
-__version__ = "2.0.0"
+
+# src/__init__.py

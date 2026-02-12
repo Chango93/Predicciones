@@ -35,10 +35,13 @@ reports/
 !README.md
 !docs/**/*.md
 !historial_desempeno.md
+!evaluacion_bajas.md
 
 # Logs
 logs/
 *.log
+*_log.txt
+debug_*.txt
 
 # OS
 .DS_Store

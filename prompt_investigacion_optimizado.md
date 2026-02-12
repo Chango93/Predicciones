@@ -1,102 +1,49 @@
-# Template de Investigación Cualitativa (Perplexity)
+ROL: Investigador Deportivo Senior (Liga MX)
+OBJETIVO: Encontrar SOLO contexto cualitativo relevante para la siguiente jornada de Liga MX Clausura 2026.
+NO BUSQUES: estadísticas, goles, tablas, xG. Eso ya lo tengo.
+IMPORTANTE: Cada afirmación debe traer fuente.
 
-**ROL:** Investigador Deportivo Senior (Liga MX)
-**OBJETIVO:** Encontrar **Contexto Crítico** (Lesiones, Transferencias, Noticias) para los partidos listados.
-**NO CALCULAR:** No busques estadísticas, tablas, ni goles. Esos datos ya los tengo.
-**TU MISIÓN:** Llenar los vacíos cualitativos del JSON.
+FORMATO DE RESPUESTA (NO JSON)
 
-## INSTRUCCIONES PARA PERPLEXITY
+Para cada partido, responde así:
 
-Copia y pega la lista de partidos de abajo. Para CADA partido, busca y reporta en formato JSON limpio:
-1.  **AUSENCIAS (Absences):**
-    *   Lesiones confirmadas de jugadores **TITULARES o CLAVE**.
-    *   Suspensiones recientes.
-    *   *Formato:* `name`, `role`, `status` (fuera/duda), `importance` (alta/media), `reason`.
-2.  **ALTAS Y BAJAS (Roster Changes):**
-    *   fichajes CONFIRMADOS (`transfer_in`) o salidas (`transfer_out`) en los últimos 7 días.
-    *   Solo jugadores relevantes.
-3.  **CONTEXTO COMPETITIVO:**
-    *   ¿Hay presión extrema sobre el técnico?
-    *   ¿Juegan con suplentes por otro torneo (Concacaf)?
-    *   ¿Problemas extra-cancha graves?
+HomeTeam vs AwayTeam
 
----
+AUSENCIAS CONFIRMADAS (home):
 
-## ESTRUCTURA DE RESPUESTA REQUERIDA (JSON)
+Jugador: ___| Posición/rol:___ | Estatus: fuera/duda | Qué pasó: ___
+Fuente: (link)
 
-Por favor devuelve SOLO un array JSON con los objetos de actualización para cada partido:
+AUSENCIAS CONFIRMADAS (away):
 
-```json
-[
-  {
-    "match_id": "HomeTeam vs AwayTeam",
-    "absences": {
-      "home": [
-        { 
-          "name": "Jugador X", 
-          "role": "atacante", 
-          "status": "fuera", 
-          "importance": "alta", 
-          "reason": "lesion rodilla", 
-          "evidence_level": "medio_top",
-          "source_url": "url" 
-        }
-      ],
-      "away": []
-    },
-    "roster_changes": {
-      "home": [],
-      "away": [
-        { 
-          "name": "Refuerzo Y", 
-          "type": "transfer_in", 
-          "role": "defensor", 
-          "importance": "media", 
-          "evidence_level": "medio_top",
-          "source_url": "url" 
-        }
-      ]
-    },
-    "competitive_context": [
-      { 
-        "type": "pressure", 
-        "team": "home",
-        "claim": "DT en riesgo de despido si pierde", 
-        "evidence_level": "medio_top"
-      },
-      { 
-        "type": "concacaf_load", 
-        "team": "away",
-        "claim": "Equipo visitante jugará Concachampions el miércoles", 
-        "evidence_level": "alto_confirmado"
-      }
-    ],
-    "pitch_notes": "Si encuentras info sobre el estado de la cancha (lluvia/malo)"
-  }
-]
-```
+...
 
-## ⚠️ CAMPOS OBLIGATORIOS (CRÍTICO)
+TRANSFERENCIAS RECIENTES (últimos 7 días):
 
-- `absences`: Cada item DEBE tener `"evidence_level"` (valores: `"oficial_club"`, `"medio_top"`, `"stats_db_top"`, `"alto_confirmado"`, `"medio_declaraciones"`)
-- `roster_changes`: Cada item DEBE tener `"evidence_level"` (mismos valores)
+Equipo: home/away | Jugador: ___| Entrada/Salida | Posición:___
+Fuente: (link)
 
-### 🚨 CAMPO TEAM EN COMPETITIVE_CONTEXT (SUPER IMPORTANTE)
+CONTEXTO COMPETITIVO (si aplica):
 
-**CADA item en competitive_context DEBE incluir `"team": "home"` o `"team": "away"`**
+Tipo: pressure / extreme_pressure / concacaf_load / crisis_squad / offensive_drought / defensive_crisis / momentum
+Afecta a: home/away
+Evidencia: qué se reporta
+Fuente: (link)
 
-Esto indica QUÉ EQUIPO es afectado por la situación. Ejemplos:
+NOTAS DE CANCHA / clima (si aplica):
 
-| Situación | team | Razón |
-|-----------|------|-------|
-| "Tigres jugará Concachampions" (Tigres es local) | `"home"` | Afecta al equipo LOCAL |
-| "Chivas líder invicto" (Chivas es visita vs Mazatlán) | `"away"` | Afecta al equipo VISITANTE |
-| "DT de América bajo presión" (América es local) | `"home"` | Afecta al equipo LOCAL |
-| "Monterrey sin 3 titulares" (Monterrey es visita) | `"away"` | Afecta al equipo VISITANTE |
+...
 
-**SI OMITES EL CAMPO `team`, EL AJUSTE NO SE APLICARÁ AL MODELO.**
+REGLAS
 
+Si no hay evidencia sólida: NO lo reportes.
 
-## LISTA DE PARTIDOS A INVESTIGAR
-*Jornada 5 de liga mx clausura 2026*
+No inventes lesiones.
 
+Máximo 5 hallazgos por equipo.
+
+Fuentes preferidas: club oficial, Liga MX, medios top, SofaScore, ESPN, Récord, TUDN.
+
+PARTIDOS
+
+*Todos los de la siguiente jornada de liga mx clausura 2026*
