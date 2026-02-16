@@ -15,9 +15,6 @@ def _captured_mass(lambda_home, lambda_away, max_goals):
 def choose_grid_limit(lambda_home, lambda_away, target_mass=0.995, min_goals=5, max_cap=12):
     """
     Selecciona tamaño de grilla adaptativo para minimizar truncamiento.
-def choose_grid_limit(lambda_home, lambda_away, target_mass=0.985, min_goals=5, max_cap=10):
-    """
-    Selecciona tamaño de grilla adaptativo para evitar truncamiento severo.
     """
     for g in range(min_goals, max_cap + 1):
         if _captured_mass(lambda_home, lambda_away, g) >= target_mass:
@@ -27,73 +24,111 @@ def choose_grid_limit(lambda_home, lambda_away, target_mass=0.985, min_goals=5, 
 
 def optimize_pick_for_quiniela(lambda_home, lambda_away):
     """
-    Optimiza pick para scoring de quiniela:
-      - 2 pts exacto
-      - 1 pt resultado (1/X/2)
-
-    EV(score) = P(resultado del score) + P(exacto score)
-
-    Nota: normaliza probabilidades por la masa capturada en grilla para
-    reducir sesgo por truncamiento en lambdas altos.
+    Optimiza pick para scoring de quiniela (2 pts exacto, 1 pt resultado).
+    
+    Implementación Rigurosa Anti-Sesgo:
+    1. Calcula P(1), P(X), P(2) totales (normalizados por grilla).
+    2. Encuentra el mejor marcador exacto para cada escenario (1, X, 2).
+    3. Calcula el EV de cada escenario: EV = P(Exacto) + P(Resultado).
+    4. Elige el escenario con mayor EV.
     """
     max_goals = choose_grid_limit(lambda_home, lambda_away)
 
-    scoreline_probs = []
-    prob_home = 0.0
-    prob_draw = 0.0
-    prob_away = 0.0
-
+    # 1. Calcular Probabilidades Raw
+    probs_all = []
+    sum_raw = 0.0
+    
+    raw_p1, raw_px, raw_p2 = 0.0, 0.0, 0.0
+    
     for h in range(max_goals + 1):
         for a in range(max_goals + 1):
             p = poisson_prob(lambda_home, h) * poisson_prob(lambda_away, a)
-            scoreline_probs.append({'h': h, 'a': a, 'score': f"{h}-{a}", 'prob_raw': p})
-            if h > a:
-                prob_home += p
-            elif h == a:
-                prob_draw += p
-            else:
-                prob_away += p
+            
+            outcome = 'X'
+            if h > a: outcome = '1'
+            elif a > h: outcome = '2'
+            
+            probs_all.append({
+                'h': h, 'a': a, 
+                'score': f"{h}-{a}", 
+                'prob_raw': p,
+                'outcome': outcome
+            })
+            sum_raw += p
+            
+            if outcome == '1': raw_p1 += p
+            elif outcome == 'X': raw_px += p
+            elif outcome == '2': raw_p2 += p
 
-    captured_mass = prob_home + prob_draw + prob_away
-    if captured_mass > 0:
-        prob_home /= captured_mass
-        prob_draw /= captured_mass
-        prob_away /= captured_mass
-
-    for item in scoreline_probs:
-        p = item['prob_raw'] / captured_mass if captured_mass > 0 else 0.0
-        h, a = item['h'], item['a']
-
-        if h > a:
-            p_result = prob_home
-            pick_1x2 = '1'
-        elif h == a:
-            p_result = prob_draw
-            pick_1x2 = 'X'
-        else:
-            p_result = prob_away
-            pick_1x2 = '2'
-
-        item['prob'] = p
-        item['pick_1x2'] = pick_1x2
-        item['ev'] = p_result + p
-
-    score_by_ev = sorted(scoreline_probs, key=lambda x: x['ev'], reverse=True)
-    score_by_prob = sorted(scoreline_probs, key=lambda x: x['prob'], reverse=True)
-    best = score_by_ev[0]
-
-    confidence_gap = best['ev'] - score_by_ev[1]['ev'] if len(score_by_ev) > 1 else 0.0
+    # 2. Normalizar
+    captured_mass = sum_raw
+    if captured_mass <= 0: return {} # Error case
+    
+    prob_1 = raw_p1 / captured_mass
+    prob_x = raw_px / captured_mass
+    prob_2 = raw_p2 / captured_mass
+    
+    # Normalizar scores individualmente
+    for item in probs_all:
+        item['prob'] = item['prob_raw'] / captured_mass
+    
+    # 3. Encontrar el mejor exacto por grupo
+    # Filtrar y ordenar
+    scores_1 = sorted([x for x in probs_all if x['outcome'] == '1'], key=lambda x: x['prob'], reverse=True)
+    scores_x = sorted([x for x in probs_all if x['outcome'] == 'X'], key=lambda x: x['prob'], reverse=True)
+    scores_2 = sorted([x for x in probs_all if x['outcome'] == '2'], key=lambda x: x['prob'], reverse=True)
+    
+    best_1 = scores_1[0] if scores_1 else None
+    best_x = scores_x[0] if scores_x else None
+    best_2 = scores_2[0] if scores_2 else None
+    
+    # 4. Calcular EV por Candidato
+    candidates = []
+    
+    if best_1:
+        ev_1 = best_1['prob'] + prob_1
+        candidates.append({'pick_1x2': '1', 'pick_exact': best_1['score'], 'ev': ev_1})
+        
+    if best_x:
+        ev_x = best_x['prob'] + prob_x
+        candidates.append({'pick_1x2': 'X', 'pick_exact': best_x['score'], 'ev': ev_x})
+        
+    if best_2:
+        ev_2 = best_2['prob'] + prob_2
+        candidates.append({'pick_1x2': '2', 'pick_exact': best_2['score'], 'ev': ev_2})
+        
+    # Ordenar candidatos por EV
+    candidates = sorted(candidates, key=lambda x: x['ev'], reverse=True)
+    winner = candidates[0]
+    
+    # Calcular gap con el segundo mejor (de distinta outcome si es posible, o raw)
+    # Gap confidence usuallly vs 2nd absolute best option in the global table
+    # But here we want gap between the chosen strategy and the next best strategy
+    ev_confidence_gap = 0.0
+    if len(candidates) > 1:
+        ev_confidence_gap = winner['ev'] - candidates[1]['ev']
+        
+    # Recalcular lista global para Top 5 Display
+    # Calculamos EV "naive" para todos para mostrar en tabla
+    for item in probs_all:
+        if item['outcome'] == '1': p_res = prob_1
+        elif item['outcome'] == 'X': p_res = prob_x
+        else: p_res = prob_2
+        item['ev'] = item['prob'] + p_res
+        
+    top_5_prob = sorted(probs_all, key=lambda x: x['prob'], reverse=True)[:5]
+    top_5_ev_naive = sorted(probs_all, key=lambda x: x['ev'], reverse=True)[:5]
 
     return {
-        'pick_exact': best['score'],
-        'pick_1x2': best['pick_1x2'],
-        'ev': best['ev'],
-        'ev_confidence_gap': confidence_gap,
-        'prob_home_win': prob_home,
-        'prob_draw': prob_draw,
-        'prob_away_win': prob_away,
-        'top_5_by_prob': score_by_prob[:5],
-        'top_5_by_ev': score_by_ev[:5],
+        'pick_exact': winner['pick_exact'],
+        'pick_1x2': winner['pick_1x2'],
+        'ev': winner['ev'],
+        'ev_confidence_gap': ev_confidence_gap,
+        'prob_home_win': prob_1,
+        'prob_draw': prob_x,
+        'prob_away_win': prob_2,
+        'top_5_by_prob': top_5_prob,
+        'top_5_by_ev': top_5_ev_naive,
         'grid_max_goals': max_goals,
         'captured_mass': captured_mass,
     }

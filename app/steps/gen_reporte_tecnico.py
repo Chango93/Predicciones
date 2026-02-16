@@ -12,6 +12,7 @@ from math import isnan
 
 import src.predicciones.data as data_loader
 import src.predicciones.quiniela as qx
+import src.predicciones.improvements as improvements
 
 def main():
     runtime_config = config.resolve_config()
@@ -59,12 +60,39 @@ def main():
         home_data = adj_map.get(home_canon, {'att_adj':1.0, 'def_adj':1.0, 'report_log':[], 'context_txt':[], 'ausencias_txt':[], 'movimientos_txt':[]})
         away_data = adj_map.get(away_canon, {'att_adj':1.0, 'def_adj':1.0, 'report_log':[], 'context_txt':[], 'ausencias_txt':[], 'movimientos_txt':[]})
         
+        # Calculate Recent Form
+        form_mult_home, form_details_home = improvements.calculate_recent_form(
+             stats_df, home_canon, match['match']['kickoff_datetime'], runtime_config.get('RECENT_FORM_GAMES', 5)
+        )
+        form_mult_away, form_details_away = improvements.calculate_recent_form(
+             stats_df, away_canon, match['match']['kickoff_datetime'], runtime_config.get('RECENT_FORM_GAMES', 5)
+        )
+
         match_adjustments = {
             'home_att_adj': home_data['att_adj'],
             'home_def_adj': home_data['def_adj'],
             'away_att_adj': away_data['att_adj'],
             'away_def_adj': away_data['def_adj'],
+            'home_form_adj': form_mult_home,
+            'away_form_adj': form_mult_away
         }
+        
+        # Add to report logs locally
+        if abs(form_mult_home - 1.0) > 0.001:
+             pct = (form_mult_home - 1.0) * 100
+             home_data['report_log'].append({
+                 'desc': f"RECENT FORM: {form_details_home['points']}pts ({form_details_home['pct']*100:.0f}%)",
+                 'pct': pct,
+                 'type': 'HOME'
+             })
+             
+        if abs(form_mult_away - 1.0) > 0.001:
+             pct = (form_mult_away - 1.0) * 100
+             away_data['report_log'].append({
+                 'desc': f"RECENT FORM: {form_details_away['points']}pts ({form_details_away['pct']*100:.0f}%)",
+                 'pct': pct,
+                 'type': 'AWAY'
+             })
         
         comp, errors = dl.compute_components_and_lambdas(match, team_stats_current, 
                                                          prior_weighted_stats, # CHANGED
@@ -99,7 +127,17 @@ def main():
         md_output.append(f"- **Pick 1X2:** {pick_1x2} (Prob: {prob_res:.1%})")
         md_output.append(f"- **Pick Exacto:** {pick_exact} (Prob: {top_5[0]['prob']:.1%})")
         md_output.append(f"- **Valor Esperado (EV):** {ev:.3f}")
-        md_output.append(f"- **Confianza del pick (gap EV):** {quiniela['ev_confidence_gap']:.3f}")
+        
+        # Confidence logic
+        ev_gap = quiniela['ev_confidence_gap']
+        if ev_gap >= 0.03:
+            conf_label = 'ALTO 🟢'
+        elif ev_gap >= 0.015:
+            conf_label = 'MEDIO 🟡'
+        else:
+            conf_label = 'BAJO 🔴'
+            
+        md_output.append(f"- **Confianza del pick:** {conf_label} (gap: {ev_gap:.3f})")
         md_output.append(f"- **Top 5 Marcadores:**")
         for s in top_5:
             md_output.append(f"  - {s['score']}: {s['prob']:.1%}")
@@ -118,8 +156,86 @@ def main():
             md_output.append(line)
             
         md_output.append(f"\n**Ausencias Relevantes:**")
-        for line in home_data['ausencias_txt'] + away_data['ausencias_txt']:
-            md_output.append(line)
+        
+        # Helper to format absence line
+        def fmt_abs(item):
+            # If item is string (legacy fallback)
+            if isinstance(item, str): return item
+            # If item is dict (new structure)
+            icon = "🚑" if "fuera" in item.get('status','').lower() else "⚠️"
+            return f"{icon} **{item['player']}** ({item['role']}): {item['status']} [Imp:{item['impact_level']}]"
+
+        # Collect all structured items
+        all_items = home_data.get('ausencias_items', []) + away_data.get('ausencias_items', [])
+        
+        # If no structured items, fall back to txt (legacy support if mixed)
+        if not all_items:
+             for line in home_data['ausencias_txt'] + away_data['ausencias_txt']:
+                md_output.append(line)
+        else:
+            vigentes = []
+            historicas = []
+            
+            for item in all_items:
+                # Logic: Vigente if Impact High/Mid OR Status Fuera/Duda
+                # Historica if Impact Low AND/OR Status Recuperado/Largo Plazo
+                
+                # Check 1: Status keywords
+                st = item.get('status', '').lower()
+                imp = item.get('impact_level', 'Low').lower()
+                
+                is_vigente = True
+                if 'recuperado' in st or 'alta' in st:
+                    is_vigente = False
+                elif imp == 'low' and 'duda' not in st and 'fuera' not in st:
+                    is_vigente = False
+                elif item.get('recency_days', 0) > 30 and imp == 'low':
+                    is_vigente = False
+                
+                # Formatted string with team prefix to know who it belongs to (since we combined lists)
+                # But wait, we don't know the team in the combined list easily unless we stored it.
+                # 'data.py' stores 'source' but not 'team' in the item? 
+                # Actually, we rely on the fact that home_data comes from home_canon key.
+                # Let's process separately to keep team context.
+                pass 
+            
+            # Re-do split with team context
+            def process_list(items, team_tag):
+                v, h = [], []
+                for item in items:
+                    st = item.get('status', '').lower()
+                    imp = item.get('impact_level', 'Low').lower()
+                    
+                    is_vigente = True
+                    # Relaxed rule: High/Mid is always vigente. Low only if recent or explicitly "Fuera"
+                    if imp in ['high', 'mid']:
+                        is_vigente = True
+                    elif 'fuera' in st or 'duda' in st or 'suspendido' in st:
+                        is_vigente = True
+                    else:
+                        is_vigente = False # Low impact, not explicitly out/doubt -> historical/minor
+                    
+                    line = f"- {team_tag} {fmt_abs(item)}"
+                    if is_vigente: v.append(line)
+                    else: h.append(line)
+                return v, h
+
+            v_home, h_home = process_list(home_data.get('ausencias_items', []), f"({home_raw})")
+            v_away, h_away = process_list(away_data.get('ausencias_items', []), f"({away_raw})")
+            
+            vigentes = v_home + v_away
+            historicas = h_home + h_away
+            
+            if vigentes:
+                md_output.append("**🔴 Vigentes (Impacto Inmediato):**")
+                for line in vigentes: md_output.append(line)
+            
+            if historicas:
+                md_output.append("\n**🕒 Históricas / Menor Impacto:**")
+                for line in historicas: md_output.append(line)
+                
+            if not vigentes and not historicas:
+                md_output.append("- *Sin ausencias reportadas.*")
             
         # Analysis
         md_output.append(f"\n### 🧪 Análisis de Lambdas (Goles Esperados)")
@@ -159,7 +275,7 @@ def main():
         for adj in home_data['report_log']:
             if "Lambda Propio" in adj['desc']: 
                  md_output.append(f"  [HOME] [{adj['pct']:+.1f}%] {adj['desc']}")
-            elif "Contexto" in adj['desc']: # Allow Context messages
+            elif "Contexto" in adj['desc'] or "RECENT FORM" in adj['desc']: # Allow Context messages
                  md_output.append(f"  [HOME] [{adj['pct']:+.1f}%] {adj['desc']}")
 
         # 2. Away Defense Adjustments (affect Home Goals)
@@ -180,7 +296,7 @@ def main():
         for adj in away_data['report_log']:
             if "Lambda Propio" in adj['desc']:
                  md_output.append(f"  [AWAY] [{adj['pct']:+.1f}%] {adj['desc']}")
-            elif "Contexto" in adj['desc']:
+            elif "Contexto" in adj['desc'] or "RECENT FORM" in adj['desc']:
                  md_output.append(f"  [AWAY] [{adj['pct']:+.1f}%] {adj['desc']}")
         for adj in home_data['report_log']:
             if "Lambda Rival" in adj['desc']:

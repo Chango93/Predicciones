@@ -167,6 +167,8 @@ def main():
 
     env = os.environ.copy()
     env["PRED_JORNADA"] = str(cfg['JORNADA'])
+    env["PYTHONPATH"] = os.getcwd() + os.pathsep + env.get("PYTHONPATH", "")
+    env["PYTHONIOENCODING"] = "utf-8"
 
     steps = [
         ("app/steps/gen_predicciones.py", "Generación de CSV de Predicciones"),

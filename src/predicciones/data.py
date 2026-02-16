@@ -13,8 +13,84 @@ PENALTIES = {
     'MF_REG': 0.97,      # Ajustado de 0.95 a 0.97 segun calibracion
     'FW_KEY': 0.85,      # Reduccion en ataque
     'FW_REG': 0.93,      # Ajustado de 0.91 a 0.93 segun calibracion
-    'STATUS_DUDA_FACTOR': 0.5, # Factor para reducir impacto si es Duda
+    'STATUS_DUDA_FACTOR': 0.0, # Factor para reducir impacto si es Duda (0.0 = sin impacto)
 }
+
+KEY_PLAYERS_CACHE = {}
+
+def load_key_players(file_path="data/key_players.json"):
+    """
+    Loads key players and elite traits into a cache for quick lookup.
+    Returns a dict: {(team_canonical, player_name_lower): {'rank': int, 'elite': bool}}
+    """
+    global KEY_PLAYERS_CACHE
+    if KEY_PLAYERS_CACHE:
+        return KEY_PLAYERS_CACHE
+        
+    if not os.path.exists(file_path):
+        print(f"WARNING: {file_path} not found. Key player logic disabled.")
+        return {}
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            
+        cache = {}
+        # 1. Process Ranked Players
+        for p in data.get('players', []):
+            tm = dl.canonical_team_name(p.get('team', ''))
+            nm = dl.remove_accents(p.get('name', '').lower().strip())
+            rank = p.get('rank', 999)
+            if tm and nm:
+                cache[(tm, nm)] = {'rank': rank, 'elite': False}
+                
+        # 2. Process Elite Traits (Force Elite)
+        elite_sections = data.get('elite_traits_players', {})
+        for trait, players in elite_sections.items():
+            for p in players:
+                tm = dl.canonical_team_name(p.get('team', ''))
+                nm = dl.remove_accents(p.get('name', '').lower().strip())
+                if tm and nm:
+                    if (tm, nm) not in cache:
+                        cache[(tm, nm)] = {'rank': 999, 'elite': True}
+                    else:
+                        cache[(tm, nm)]['elite'] = True
+                        
+        KEY_PLAYERS_CACHE = cache
+        return cache
+    except Exception as e:
+        print(f"ERROR loading key players: {e}")
+        return {}
+
+def get_player_importance_level(team, player_name):
+    """
+    Determines if a player is 'High', 'Mid', or 'Low' importance based on key_players.json
+    """
+    cache = load_key_players()
+    # Normalize player name too (remove accents) to ensure match
+    player_norm = dl.remove_accents(player_name.lower().strip())
+    key = (dl.canonical_team_name(team), player_norm)
+    
+    if key in cache:
+        info = cache[key]
+        if info['elite'] or info['rank'] <= 40:
+            return 'High'
+        elif info['rank'] <= 80:
+            return 'Mid'
+            
+    return None # No override
+
+
+
+def normalize_role(role):
+    r = (role or "").lower().strip()
+    if r in ["gk", "goalkeeper"]: return "portero"
+    if "portero" in r: return "portero"
+    if any(x in r for x in ["defensa", "defensor", "lateral", "central", "cb", "lb", "rb", "df"]): return "defensa"
+    if any(x in r for x in ["mediocampista", "volante", "medio", "mediocentro", "cm", "dm", "am", "mf"]): return "medio"
+    if any(x in r for x in ["delantero", "atacante", "extremo", "fw", "st", "cf", "wing"]): return "ataque"
+    return "unknown"
+
 
 def apply_minutes_gate(baja):
     """
@@ -43,106 +119,192 @@ def apply_minutes_gate(baja):
     
     return impact_orig
 
-def load_bajas_penalties(file_path="data/inputs/evaluacion_bajas.json"):
+def _ensure_team_adjustment(team_adjustments, team):
+    if team not in team_adjustments:
+        team_adjustments[team] = {
+            'att_adj': 1.0,
+            'def_adj': 1.0,
+            'notes': [],
+            'report_log': [],
+            'context_txt': [],
+            'ausencias_txt': [],
+            'ausencias_items': [],
+            'movimientos_txt': []
+        }
+
+
+# === DATA COLLECTION & DEDUPLICATION ===
+
+def collect_manual_bajas(file_path="data/inputs/evaluacion_bajas.json"):
     """
-    Loads structured bajas evaluation and applies penalties.
-    Returns a dictionary with both numerical adjustments and reporting logs.
+    Collects raw bajas from manual evaluation file.
+    Returns list of dicts.
     """
     if not os.path.exists(file_path):
-        print(f"WARNING: {file_path} not found. Returning empty adjustments.")
-        return {}
+        return []
         
     with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
         
-    bajas = data.get('bajas_identificadas', [])
-    team_adjustments = {}
+    bajas_list = []
+    for item in data.get('bajas_identificadas', []):
+        team = dl.canonical_team_name(item['team'])
+        if not team: continue
+        
+        # Key Player Override (Early Check)
+        player = item.get('player', 'Unknown')
+        impact = item.get('manual_impact_level', 'Low')
+        auto_imp = get_player_importance_level(team, player)
+        
+        if auto_imp == 'High' and impact != 'High':
+             impact = 'High'
+        elif auto_imp == 'Mid' and impact == 'Low':
+             impact = 'Mid'
+             
+        # Minute Gate
+        # Create temp dict for gate function
+        temp_item = item.copy()
+        temp_item['manual_impact_level'] = impact
+        impact = apply_minutes_gate(temp_item)
+
+        bajas_list.append({
+            'team': team,
+            'player': player,
+            'role': item.get('role', ''),
+            'status': item.get('status', '').title(),
+            'impact_level': impact,
+            'reason': item.get('reason', ''),
+            'confidence': 1.0, # Manual is absolute truth usually
+            'recency_days': 0,
+            'source': 'manual',
+            'raw_data': item
+        })
+    return bajas_list
+
+def collect_perplexity_bajas(file_path="data/inputs/perplexity_bajas_semana.json"):
+    """
+    Collects raw bajas from Perplexity file.
+    Returns list of dicts.
+    """
+    if not os.path.exists(file_path):
+        return []
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    bajas = data.get('bajas', [])
+    if not isinstance(bajas, list): return []
     
-    for baja in bajas:
-        team = dl.canonical_team_name(baja['team'])
-        if team not in team_adjustments:
-            team_adjustments[team] = {
-                'att_adj': 1.0, 
-                'def_adj': 1.0, 
-                'notes': [],
-                'report_log': [],     # For the report table
-                'ausencias_txt': [],  # For the text section
-            }
-            
-        role = baja.get('role', '').lower()
-        status = baja.get('status', '').title()
-        impact_level_orig = baja.get('manual_impact_level', 'Low') # High, Mid, Low, None
-        impact_level = apply_minutes_gate(baja)  # 🔒 Aplicar gate
-        player = baja.get('player', 'Unknown')
-        reason = baja.get('reason', '')
+    bajas_list = []
+    for item in bajas:
+        team = dl.canonical_team_name(item.get('team', ''))
+        if not team: continue
         
-        # Display Text (Report)
-        icon = "🚑" if "Fuera" in status else "⚠️"
-        ausencia_txt = f"{icon} **{player}** ({role}): {status} - *{reason}* [Impacto: {impact_level}]"
-        team_adjustments[team]['ausencias_txt'].append(ausencia_txt)
+        # Filtering Logic
+        is_active = item.get('is_active_for_next_match', None)
+        recency = int(item.get('recency_days', 0))
         
-        # 1. Determine Base Penalty
-        if impact_level in ['Low', 'None', 'low', 'none']:
-            continue
-            
-        # 2. Select Constants
-        is_key = (impact_level == 'High')
+        if is_active is False: continue
+        if bool(item.get('is_retired', False)): continue
+        if bool(item.get('is_transferred_out', False)): continue
         
-        # 3. Apply Duda Factor
-        is_duda = "duda" in status.lower()
-        if is_duda:
-            impact_factor = 0.0 # User requested to REMOVE Duda impact (from gen_predicciones logic)
+        curr_team = dl.canonical_team_name(item.get('current_team', ''))
+        if curr_team and curr_team != team: continue
+        
+        if str(item.get('verification_status', '')).lower() != 'confirmed': continue
+        if recency > 21 and is_active is not True: continue
+        
+        conf = float(item.get('confidence', 0.75))
+        if recency > 14 and is_active is not True: conf = min(conf, 0.55)
+        
+        # Key Player Check
+        player = item.get('player', 'Unknown')
+        impact = item.get('impact_level', 'Low')
+        auto_imp = get_player_importance_level(team, player)
+        if auto_imp == 'High': impact = 'High'
+        elif auto_imp == 'Mid' and impact == 'Low': impact = 'Mid'
+        
+        if impact.lower() in ['low', 'none', 'unknown']:
+             continue
+
+        bajas_list.append({
+            'team': team,
+            'player': player,
+            'role': item.get('role', ''),
+            'status': item.get('status', 'Duda'),
+            'impact_level': impact,
+            'reason': item.get('reason', ''),
+            'confidence': conf,
+            'recency_days': recency,
+            'source': 'perplexity',
+            'raw_data': item
+        })
+    return bajas_list
+
+def deduplicate_bajas(bajas_list):
+    """
+    Deduplicates bajas list based on (team, normalized_player).
+    Priority: Impact Level > Confidence > Source(Manual>Perplexity)
+    """
+    unique_map = {}
+    
+    impact_score = {'High': 3, 'Mid': 2, 'Low': 1, 'None': 0}
+    
+    for item in bajas_list:
+        p_norm = dl.remove_accents(item['player'].lower().strip())
+        team = item['team']
+        key = (team, p_norm)
+        
+        if key not in unique_map:
+            unique_map[key] = item
         else:
-            impact_factor = 1.0
-        
-        # 4. Apply to Role
-        penalty_att = 1.0
-        penalty_def = 1.0
-        desc_log = ""
-        pct_log = 0
-        
-        if "portero" in role:
-            base = PENALTIES['GK_KEY'] if is_key else 1.05 
-            effect = (base - 1.0) * impact_factor
-            penalty_def = 1.0 + effect
-            desc_log = "Lambda Rival (Portero)"
-            pct_log = effect * 100
+            existing = unique_map[key]
             
-        elif "defensa" in role or "lateral" in role or "central" in role:
-            base = PENALTIES['DF_KEY'] if is_key else PENALTIES['DF_REG']
-            effect = (base - 1.0) * impact_factor
-            penalty_def = 1.0 + effect
-            desc_log = "Lambda Rival (Defensa)"
-            pct_log = effect * 100
+            # Compare Scores
+            score_new = impact_score.get(item['impact_level'], 0)
+            score_old = impact_score.get(existing['impact_level'], 0)
             
-        elif "mediocampista" in role or "volante" in role:
-            base = PENALTIES['MF_KEY'] if is_key else PENALTIES['MF_REG']
-            effect = (1.0 - base) * impact_factor
-            penalty_att = 1.0 - effect
-            desc_log = "Lambda Propio (Medio)"
-            pct_log = (penalty_att - 1.0) * 100
-            
-        elif "delantero" in role or "atacante" in role or "extremo" in role:
-            base = PENALTIES['FW_KEY'] if is_key else PENALTIES['FW_REG']
-            effect = (1.0 - base) * impact_factor
-            penalty_att = 1.0 - effect
-            desc_log = "Lambda Propio (Ataque)"
-            pct_log = (penalty_att - 1.0) * 100
-            
-        # Apply
-        curr = team_adjustments[team]
-        curr['att_adj'] *= penalty_att
-        curr['def_adj'] *= penalty_def
-        curr['notes'].append(f"{player} ({role}): {impact_level}{' (Duda)' if is_duda else ''} -> att*{penalty_att:.3f}, def*{penalty_def:.3f}")
-        
-        if pct_log != 0:
-            curr['report_log'].append({
-                 'desc': f"{desc_log}: {player} ({status})", 
-                 'pct': pct_log, 
-                 'type': 'HOME' if 'Propio' in desc_log else 'AWAY'
-            })
-            
+            if score_new > score_old:
+                unique_map[key] = item
+                # print(f"  > Dedup: Replaced {existing['player']} ({existing['impact_level']}) with {item['impact_level']} from {item['source']}")
+            elif score_new == score_old:
+                # Tie-break: Confidence
+                if item['confidence'] > existing['confidence']:
+                    unique_map[key] = item
+                elif item['confidence'] == existing['confidence']:
+                     # Tie-break: Manual wins
+                     if item['source'] == 'manual' and existing['source'] != 'manual':
+                         unique_map[key] = item
+    
+    return list(unique_map.values())
+
+def apply_bajas_list(team_adjustments, bajas_list):
+    """
+    Applies the final deduplicated list of bajas to team_adjustments.
+    """
+    for item in bajas_list:
+        _apply_scaled_adjustment(
+            team_adjustments=team_adjustments,
+            team_name=item['team'],
+            player=item['player'],
+            role=item['role'],
+            impact_level=item['impact_level'],
+            status=item['status'],
+            reason=item['reason'],
+            source=item['source'],
+            confidence=item['confidence'],
+            recency_days=item['recency_days']
+        )
     return team_adjustments
+
+# === LEGACY ADAPTERS (For backward compatibility if needed, though we will update gen_predicciones) ===
+
+def load_bajas_penalties(file_path="data/inputs/evaluacion_bajas.json"):
+    # Now just a wrapper for the new flow if called in isolation (not recommended)
+    raw = collect_manual_bajas(file_path)
+    adj = {}
+    apply_bajas_list(adj, raw)
+    return adj
 
 def load_qualitative_adjustments(team_adjustments, qualitative_path="data/inputs/Investigacion_cualitativa_jornada6.json"):
     """
@@ -216,36 +378,49 @@ def load_qualitative_adjustments(team_adjustments, qualitative_path="data/inputs
                 segments = [s.strip() for s in affects_line.split('/')]
                 
                 for segment in segments:
-                    # Generic team checking - simplified for speed
-                    # Ideally we have a list of all known alias keys from config/core
-                    # but hardcoding the commons here covers 99%
-                    for t_code in ['pumas', 'america', 'chivas', 'guadalajara', 'cruz azul', 'toluca', 'tigres', 'monterrey', 'pachuca', 'leon', 'santos', 'mazatlan', 'puebla', 'juarez', 'tijuana', 'necaxa', 'san luis', 'queretaro', 'atlas']:
-                         if t_code in segment.lower():
-                             tm_name = dl.canonical_team_name(t_code)
-                             if tm_name not in team_adjustments:
-                                 team_adjustments[tm_name] = {
-                                     'att_adj': 1.0, 'def_adj': 1.0, 'notes': [], 
-                                     'report_log': [], 'ausencias_txt': [], 'movimientos_txt': [], 'context_txt': []
-                                 }
-                             if 'context_txt' not in team_adjustments[tm_name]: team_adjustments[tm_name]['context_txt'] = []
-                             if 'report_log' not in team_adjustments[tm_name]: team_adjustments[tm_name]['report_log'] = []
+                    # Strict Regex for Team Matching
+                    # We iterate over known aliases to find EXACT word matches
+                    # e.g. "San Luis" should not match "Luis" if "Luis" was an alias (it's not but illustrative)
+                    # We use word boundaries \b
+                    
+                    found_team = None
+                    # Sort candidates by length desc to match "Atletico San Luis" before "San Luis"
+                    candidates = sorted(['pumas', 'america', 'chivas', 'guadalajara', 'cruz azul', 'toluca', 'tigres', 'monterrey', 'pachuca', 'leon', 'santos', 'mazatlan', 'puebla', 'juarez', 'tijuana', 'necaxa', 'san luis', 'queretaro', 'atlas'], key=len, reverse=True)
+                    
+                    for t_code in candidates:
+                         # Regex: \b(pumas)\b case insensitive
+                         pattern = r'\b' + re.escape(t_code) + r'\b'
+                         if re.search(pattern, segment, re.IGNORECASE):
+                             found_team = dl.canonical_team_name(t_code)
+                             break # Stop at first longest match
+                    
+                    if found_team:
+                         tm_name = found_team
+                         if tm_name not in team_adjustments:
+                             # Ensure structure exists
+                             _ensure_team_adjustment(team_adjustments, tm_name)
 
-                             subtype_match = re.search(r"\(([^)]+)\)", segment)
-                             team_subtype = subtype_match.group(1) if subtype_match else (current_context_type or "")
+                         if 'context_txt' not in team_adjustments[tm_name]: team_adjustments[tm_name]['context_txt'] = []
+                         if 'report_log' not in team_adjustments[tm_name]: team_adjustments[tm_name]['report_log'] = []
+
+                         current_team = tm_name 
+
+                         subtype_match = re.search(r"\(([^)]+)\)", segment)
+                         team_subtype = subtype_match.group(1) if subtype_match else (current_context_type or "")
                              
-                             if "momentum" in team_subtype.lower() and "crisis" not in team_subtype.lower():
-                                 team_adjustments[tm_name]['att_adj'] *= 1.05
-                                 team_adjustments[tm_name]['notes'].append(f"CONTEXT MOMENTUM (+5%): {team_subtype}")
-                                 team_adjustments[tm_name]['report_log'].append({'desc': f"Contexto: {team_subtype}", 'pct': 5.0, 'type': 'HOME'})
-                             elif "crisis" in team_subtype.lower() or ("extrema" in team_subtype.lower() and "crisis" in current_context_type.lower()):
-                                 team_adjustments[tm_name]['att_adj'] *= 0.95
-                                 team_adjustments[tm_name]['def_adj'] *= 1.05
-                                 team_adjustments[tm_name]['notes'].append(f"CONTEXT CRISIS (-5% Att, -5% Def): {team_subtype}")
-                                 team_adjustments[tm_name]['report_log'].append({'desc': f"Contexto: {team_subtype}", 'pct': -5.0, 'type': 'HOME'})
-                             elif "winning_streak" in team_subtype.lower():
-                                 team_adjustments[tm_name]['att_adj'] *= 1.03
-                                 team_adjustments[tm_name]['notes'].append(f"CONTEXT WINNING STREAK (+3%): {team_subtype}")
-                                 team_adjustments[tm_name]['report_log'].append({'desc': f"Contexto: Buena Forma (5 ganados)", 'pct': 3.0, 'type': 'HOME'})
+                         if "momentum" in team_subtype.lower() and "crisis" not in team_subtype.lower():
+                             team_adjustments[tm_name]['att_adj'] *= 1.05
+                             team_adjustments[tm_name]['notes'].append(f"CONTEXT MOMENTUM (+5%): {team_subtype}")
+                             team_adjustments[tm_name]['report_log'].append({'desc': f"Contexto: {team_subtype}", 'pct': 5.0, 'type': 'HOME'})
+                         elif "crisis" in team_subtype.lower() or ("extrema" in team_subtype.lower() and "crisis" in current_context_type.lower()):
+                             team_adjustments[tm_name]['att_adj'] *= 0.95
+                             team_adjustments[tm_name]['def_adj'] *= 1.05
+                             team_adjustments[tm_name]['notes'].append(f"CONTEXT CRISIS (-5% Att, -5% Def): {team_subtype}")
+                             team_adjustments[tm_name]['report_log'].append({'desc': f"Contexto: {team_subtype}", 'pct': -5.0, 'type': 'HOME'})
+                             # elif "winning_streak" in team_subtype.lower():
+                             #     team_adjustments[tm_name]['att_adj'] *= 1.03
+                             #     team_adjustments[tm_name]['notes'].append(f"CONTEXT WINNING STREAK (+3%): {team_subtype}")
+                             #     team_adjustments[tm_name]['report_log'].append({'desc': f"Contexto: Buena Forma (5 ganados)", 'pct': 3.0, 'type': 'HOME'})
                              
                              current_team = tm_name
 
@@ -255,29 +430,6 @@ def load_qualitative_adjustments(team_adjustments, qualitative_path="data/inputs
                 team_adjustments[current_team]['context_txt'].append(f"- ℹ️ **CONTEXTO:** {evidence}")
 
     return team_adjustments
-
-
-def _ensure_team_adjustment(team_adjustments, team_name):
-    """Inicializa estructura de ajustes por equipo si no existe."""
-    if team_name not in team_adjustments:
-        team_adjustments[team_name] = {
-            'att_adj': 1.0,
-            'def_adj': 1.0,
-            'notes': [],
-            'report_log': [],
-            'ausencias_txt': [],
-            'movimientos_txt': [],
-            'context_txt': [],
-        }
-
-    # Garantizar llaves mínimas para evitar KeyError.
-    team_adjustments[team_name].setdefault('att_adj', 1.0)
-    team_adjustments[team_name].setdefault('def_adj', 1.0)
-    team_adjustments[team_name].setdefault('notes', [])
-    team_adjustments[team_name].setdefault('report_log', [])
-    team_adjustments[team_name].setdefault('ausencias_txt', [])
-    team_adjustments[team_name].setdefault('movimientos_txt', [])
-    team_adjustments[team_name].setdefault('context_txt', [])
 
 
 
@@ -291,19 +443,26 @@ def _apply_scaled_adjustment(team_adjustments, team_name, player, role, impact_l
     """
     _ensure_team_adjustment(team_adjustments, team_name)
 
-    role_l = (role or '').lower()
+    role_raw = (role or '')
+    role_norm = normalize_role(role_raw)
     status_l = (status or '').lower()
 
     if (impact_level or '').lower() in ['low', 'none', 'unknown', 'desconocido']:
-        return
+        # Check for Key Player Override even if source says Low/Unknown
+        auto_imp = get_player_importance_level(team_name, player)
+        if auto_imp == 'High':
+             print(f"⚡ UPGRADE (Perplexity): {player} is ELITE. Force High Impact.")
+             impact_level = 'High'
+             is_key = True
+        elif auto_imp == 'Mid':
+             impact_level = 'Mid'
+        else:
+             return
 
     is_key = (impact_level or '').lower() == 'high'
 
     # Sin impacto en duda por diseño conservador
-    if 'duda' in status_l:
-        impact_factor = 0.0
-    else:
-        impact_factor = 1.0
+    impact_factor = PENALTIES.get('STATUS_DUDA_FACTOR', 0.5) if 'duda' in status_l else 1.0
 
     recency_days = max(0, min(30, int(recency_days or 0)))
     recency_factor = max(0.55, 1.0 - (recency_days / 31.0) * 0.45)
@@ -314,36 +473,41 @@ def _apply_scaled_adjustment(team_adjustments, team_name, player, role, impact_l
     desc_log = ""
     pct_log = 0.0
 
-    if "portero" in role_l:
+    if role_norm == "portero":
         base = PENALTIES['GK_KEY'] if is_key else 1.05
         effect = (base - 1.0) * impact_factor * scale
         penalty_def = 1.0 + effect
         desc_log = f"Lambda Rival (Portero) [{source}]"
         pct_log = effect * 100
-    elif "defensa" in role_l or "lateral" in role_l or "central" in role_l:
+        affects = 'AWAY'
+    elif role_norm == "defensa":
         base = PENALTIES['DF_KEY'] if is_key else PENALTIES['DF_REG']
         effect = (base - 1.0) * impact_factor * scale
         penalty_def = 1.0 + effect
         desc_log = f"Lambda Rival (Defensa) [{source}]"
         pct_log = effect * 100
-    elif "mediocampista" in role_l or "volante" in role_l:
+        affects = 'AWAY'
+    elif role_norm == "medio":
         base = PENALTIES['MF_KEY'] if is_key else PENALTIES['MF_REG']
         effect = (1.0 - base) * impact_factor * scale
         penalty_att = 1.0 - effect
         desc_log = f"Lambda Propio (Medio) [{source}]"
         pct_log = (penalty_att - 1.0) * 100
-    elif "delantero" in role_l or "atacante" in role_l or "extremo" in role_l:
+        affects = 'HOME'
+    elif role_norm == "ataque":
         base = PENALTIES['FW_KEY'] if is_key else PENALTIES['FW_REG']
         effect = (1.0 - base) * impact_factor * scale
         penalty_att = 1.0 - effect
         desc_log = f"Lambda Propio (Ataque) [{source}]"
         pct_log = (penalty_att - 1.0) * 100
+        affects = 'HOME'
     else:
         # Rol desconocido: ajuste mínimo conservador
         effect = 0.02 * scale * impact_factor
         penalty_att = 1.0 - effect
         desc_log = f"Lambda Propio (Rol no clasificado) [{source}]"
         pct_log = (penalty_att - 1.0) * 100
+        affects = 'HOME'
 
     curr = team_adjustments[team_name]
     curr['att_adj'] *= penalty_att
@@ -354,6 +518,18 @@ def _apply_scaled_adjustment(team_adjustments, team_name, player, role, impact_l
         f"{icon} **{player}** ({role or 'N/A'}): {status or 'N/A'} - *{reason or 'Sin detalle'}* "
         f"[Impacto: {impact_level}, Confianza:{confidence:.2f}, Recencia:{recency_days}d]"
     )
+    
+    # Add Structured Item
+    curr['ausencias_items'].append({
+        'player': player,
+        'role': role_norm,
+        'status': status,
+        'reason': reason,
+        'impact_level': impact_level,
+        'confidence': confidence,
+        'recency_days': recency_days,
+        'source': source
+    })
 
     curr['notes'].append(
         f"{source.upper()} | {player} ({role}) impact={impact_level} conf={confidence:.2f} recency={recency_days}d"
@@ -362,94 +538,18 @@ def _apply_scaled_adjustment(team_adjustments, team_name, player, role, impact_l
     curr['report_log'].append({
         'desc': f"{desc_log}: {player} ({status})",
         'pct': pct_log,
-        'type': 'HOME' if 'Propio' in desc_log else 'AWAY'
+        'type': affects
     })
 
 
 
 def load_perplexity_weekly_bajas(team_adjustments, file_path="data/inputs/perplexity_bajas_semana.json"):
-    """
-    Carga bajas semanales provenientes de Perplexity en JSON estructurado.
-
-    Formato esperado:
-    {
-      "week_reference": "2026-W06",
-      "source": "perplexity",
-      "bajas": [
-        {
-          "team": "América",
-          "player": "Nombre",
-          "role": "Delantero",
-          "status": "Fuera",
-          "impact_level": "High",
-          "confidence": 0.82,
-          "recency_days": 1,
-          "reason": "Lesión muscular"
-        }
-      ]
-    }
-    """
-    if not os.path.exists(file_path):
-        print(f"INFO: {file_path} no encontrado. Se omite integración Perplexity.")
-        return team_adjustments
-
-    with open(file_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
-    bajas = data.get('bajas', [])
-    if not isinstance(bajas, list):
-        print(f"WARNING: {file_path} tiene formato inválido ('bajas' no es lista).")
-        return team_adjustments
-
-    for item in bajas:
-        team = dl.canonical_team_name(item.get('team', ''))
-        if not team:
-            continue
-
-        # Control anti-desactualización y consistencia de plantel actual:
-        # - Si Perplexity marca explícitamente que NO está activo para el siguiente partido, se omite.
-        # - Si la noticia es vieja (>21 días) y no hay confirmación de vigencia, se omite.
-        # - Si el jugador aparece retirado/transferido fuera o con equipo actual distinto, se omite.
-        is_active = item.get('is_active_for_next_match', None)
-        recency_days = int(item.get('recency_days', 0))
-
-        if is_active is False:
-            continue
-
-        if bool(item.get('is_retired', False)):
-            continue
-
-        if bool(item.get('is_transferred_out', False)):
-            continue
-
-        current_team = dl.canonical_team_name(item.get('current_team', ''))
-        if current_team and current_team != team:
-            continue
-
-        verification_status = str(item.get('verification_status', 'confirmed')).lower()
-        if verification_status in ['stale', 'mismatch', 'unverified']:
-            continue
-
-        if recency_days > 21 and is_active is not True:
-            continue
-
-        confidence = float(item.get('confidence', 0.75))
-        if recency_days > 14 and is_active is not True:
-            confidence = min(confidence, 0.55)
-
-        _apply_scaled_adjustment(
-            team_adjustments=team_adjustments,
-            team_name=team,
-            player=item.get('player', 'Unknown'),
-            role=item.get('role', ''),
-            impact_level=item.get('impact_level', 'Low'),
-            status=item.get('status', 'Duda'),
-            reason=item.get('reason', ''),
-            source='perplexity',
-            confidence=confidence,
-            recency_days=recency_days,
-            confidence=float(item.get('confidence', 0.75)),
-            recency_days=int(item.get('recency_days', 0)),
-        )
-
+    # This acts as an "Add to existing" in legacy mode, 
+    # BUT it won't deduplicate against what's already inside team_adjustments 
+    # because team_adjustments is already processed.
+    # We strongly recommend using the new flow in gen_predicciones.
+    raw = collect_perplexity_bajas(file_path)
+    # We can't easily dedup against already applied adjustments without parsing them back.
+    # So we simply apply.
+    apply_bajas_list(team_adjustments, raw)
     return team_adjustments

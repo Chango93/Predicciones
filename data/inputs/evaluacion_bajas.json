@@ -55,42 +55,6 @@
             "manual_impact_level": "Low"
         },
         {
-            "team": "toluca",
-            "player": "Helinho",
-            "status": "Fuera",
-            "role": "Extremo ofensivo de velocidad y desborde por banda",
-            "reason": "Distensión muscular, resta revulsivo de velocidad en rotación ofensiva",
-            "stats_source": "key_players.json",
-            "key_data": {
-                "rank": 35,
-                "rating": 7.2,
-                "goals": 2,
-                "assists": 5
-            },
-            "suggested_impact": "HIGH (Top 100)",
-            "user_weight": 0.0,
-            "notes": "",
-            "manual_impact_level": "High"
-        },
-        {
-            "team": "toluca",
-            "player": "Alexis Vega",
-            "status": "Fuera",
-            "role": "Mediocampista ofensivo/extremo - arma principal de recambio",
-            "reason": "Lesión de rodilla, deja banca mermada en último tercio",
-            "stats_source": "key_players.json",
-            "key_data": {
-                "rank": 2,
-                "rating": 7.78,
-                "goals": 9,
-                "assists": 9
-            },
-            "suggested_impact": "HIGH (Top 100)",
-            "user_weight": 0.0,
-            "notes": "",
-            "manual_impact_level": "High"
-        },
-        {
             "team": "atletico de san luis",
             "player": "Oscar Macías",
             "status": "Lesión",
@@ -222,19 +186,6 @@
         },
         {
             "team": "guadalajara",
-            "player": "Luis Romo",
-            "status": "Fuera confirmado",
-            "role": "Mediocampista - pieza clave",
-            "reason": "Lesión. Quedó fuera de convocatoria, podría perderse también próximas dos jornadas vs Cruz Azul y Toluca",
-            "stats_source": "Not Found in Top 100",
-            "key_data": null,
-            "suggested_impact": "HIGH/Pieza Clave",
-            "user_weight": 0.0,
-            "notes": "",
-            "manual_impact_level": "High"
-        },
-        {
-            "team": "guadalajara",
             "player": "Érick Gutiérrez",
             "status": "Fuera",
             "role": "Mediocampista",
@@ -340,19 +291,6 @@
             "status": "Duda para Clásico",
             "role": "Extremo de 28 años",
             "reason": "Salió lesionado durante partido vs Monterrey en J5, donde su gol fue determinante para segunda victoria del torneo. Cuerpo médico evaluará gravedad en próximos días",
-            "stats_source": "Not Found in Top 100",
-            "key_data": null,
-            "suggested_impact": "Low/Unknown",
-            "user_weight": 0.0,
-            "notes": "",
-            "manual_impact_level": "Low"
-        },
-        {
-            "team": "cruz azul",
-            "player": "Jesús Orozco",
-            "status": "Fuera",
-            "role": "Defensa central",
-            "reason": "Fractura de tobillo sufrida en semifinal de vuelta vs Tigres (Apertura 2025). Fuera varios meses considerables",
             "stats_source": "Not Found in Top 100",
             "key_data": null,
             "suggested_impact": "Low/Unknown",

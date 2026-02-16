@@ -7,6 +7,7 @@ import src.predicciones.config as config
 import src.predicciones.core as dl  # Alias dl to minimize refactor
 import src.predicciones.data as data_loader
 import src.predicciones.quiniela as qx
+import src.predicciones.improvements as improvements
 
 def main():
     runtime_config = config.resolve_config()
@@ -21,18 +22,31 @@ def main():
     stats_df = pd.read_csv(runtime_config['INPUT_STATS'], sep='\t')
     
     # 2. Parse Qualitative
-    print("Parsing qualitative data...")
-    # qualu_path = "Investigacion_cualitativa_jornada6.json"
-    adj_map = data_loader.load_bajas_penalties(runtime_config['INPUT_EVALUATION']) # Uses eval json
-    adj_map = data_loader.load_perplexity_weekly_bajas(adj_map, runtime_config.get('INPUT_PERPLEXITY_BAJAS', 'data/inputs/perplexity_bajas_semana.json'))
-    # Qualu adjust
+    print("Parsing qualitative data (New Dedup Flow)...")
+    
+    # A. Collect Raw
+    raw_manual = data_loader.collect_manual_bajas(runtime_config['INPUT_EVALUATION'])
+    raw_perplexity = data_loader.collect_perplexity_bajas(runtime_config.get('INPUT_PERPLEXITY_BAJAS', 'data/inputs/perplexity_bajas_semana.json'))
+    
+    # B. Merge and Deduplicate
+    all_bajas = raw_manual + raw_perplexity
+    deduped_bajas = data_loader.deduplicate_bajas(all_bajas)
+    
+    print(f"  > Raw Manual: {len(raw_manual)} | Raw Perplexity: {len(raw_perplexity)}")
+    print(f"  > Deduplicated Total: {len(deduped_bajas)} (Removed {len(all_bajas) - len(deduped_bajas)} duplicates)")
+    
+    # C. Apply
+    adj_map = {} # Initialize empty
+    data_loader.apply_bajas_list(adj_map, deduped_bajas)
+    
+    # D. Qualitative Context (Existing)
     adj_map = data_loader.load_qualitative_adjustments(adj_map, runtime_config['INPUT_QUALITATIVE'])
     
     # Debug adjustments
     print("\nADJUSTMENTS APPLIED:")
     for team, data in adj_map.items():
         if data['att_adj'] != 1.0 or data['def_adj'] != 1.0:
-            print(f"{team}: Att*{data['att_adj']:.2f}, Def*{data['def_adj']:.2f} | Notes: {data['notes']}")
+            print(f"{team}: Att*{data['att_adj']:.2f}, Def*{data['def_adj']:.2f} | Notes: {len(data['notes'])} items")
 
     
     # 3. Build Stats
@@ -58,10 +72,32 @@ def main():
         home_canon = dl.canonical_team_name(home_raw)
         away_canon = dl.canonical_team_name(away_raw)
         
+        
+        # Calculate Recent Form
+        form_mult_home, form_details_home = improvements.calculate_recent_form(
+             stats_df, home_canon, match['match']['kickoff_datetime'], runtime_config.get('RECENT_FORM_GAMES', 5)
+        )
+        form_mult_away, form_details_away = improvements.calculate_recent_form(
+             stats_df, away_canon, match['match']['kickoff_datetime'], runtime_config.get('RECENT_FORM_GAMES', 5)
+        )
+        
         match_adjustments = {
             'home_att_adj': 1.0, 'home_def_adj': 1.0,
-            'away_att_adj': 1.0, 'away_def_adj': 1.0
+            'away_att_adj': 1.0, 'away_def_adj': 1.0,
+            'home_form_adj': form_mult_home,
+            'away_form_adj': form_mult_away
         }
+        
+        # Log Form
+        if abs(form_mult_home - 1.0) > 0.001:
+             print(f"  > HOME FORM: {home_canon} {form_details_home['pct']:.2f} -> {form_mult_home:.3f}")
+             if home_canon in adj_map:
+                 adj_map[home_canon]['notes'].append(f"RECENT FORM: {form_details_home['points']}pts ({form_details_home['pct']*100:.0f}%) -> {form_mult_home:.3f}")
+
+        if abs(form_mult_away - 1.0) > 0.001:
+             print(f"  > AWAY FORM: {away_canon} {form_details_away['pct']:.2f} -> {form_mult_away:.3f}")
+             if away_canon in adj_map:
+                 adj_map[away_canon]['notes'].append(f"RECENT FORM: {form_details_away['points']}pts ({form_details_away['pct']*100:.0f}%) -> {form_mult_away:.3f}")
         
         # Apply adjustments from adj_map
         if home_canon in adj_map:
@@ -100,7 +136,42 @@ def main():
         pick_1x2 = quiniela['pick_1x2']
         ev = quiniela['ev']
         
+        # Confidence Labeling
+        ev_gap = quiniela['ev_confidence_gap']
+        if ev_gap >= 0.03:
+            conf_label = 'ALTO'
+        elif ev_gap >= 0.015:
+            conf_label = 'MEDIO'
+        else:
+            conf_label = 'BAJO'
+            
         # Qualitative Notes
+        notes_str = ""
+        if home_canon in adj_map and adj_map[home_canon]['notes']:
+            notes_str += f"{' | '.join(adj_map[home_canon]['notes'])}"
+        if away_canon in adj_map and adj_map[away_canon]['notes']:
+            if notes_str: notes_str += " | "
+            notes_str += f"{' | '.join(adj_map[away_canon]['notes'])}"
+
+        results.append({
+            'home_team_canonical': home_canon,
+            'away_team_canonical': away_canon,
+            'pick_1x2': pick_1x2,
+            'pick_exact': pick_exact,
+            'ev': quiniela['ev'],
+            'prob_home_win': prob_home_win,
+            'prob_draw': prob_draw,
+            'prob_away_win': prob_away_win,
+            'lambda_home_final': l_home,
+            'lambda_away_final': l_away,
+            'top_5_scorelines': "|".join([f"{x['score']}:{x['prob']:.3f}" for x in top_5]),
+            'top_5_ev': "|".join([f"{x['score']}:{x['ev']:.3f}" for x in quiniela['top_5_by_ev']]),
+            'ev_confidence_gap': quiniela['ev_confidence_gap'],
+            'grid_max_goals': quiniela['grid_max_goals'],
+            'captured_mass': quiniela['captured_mass'],
+            'confidence_label': conf_label,
+            'qualitative_notes': notes_str
+        })
         notes_home = adj_map.get(home_canon, {}).get('notes', [])
         notes_away = adj_map.get(away_canon, {}).get('notes', [])
         notes_compact = ' | '.join(notes_home + notes_away) if notes_home or notes_away else ''

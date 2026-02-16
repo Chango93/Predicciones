@@ -2,13 +2,13 @@
 ================================================================================
 DIAGNOSTICO LAMBDAS - v6 REFACTORED (CORE LIB)
 ================================================================================
-Timestamp: 2026-02-11 10:15:47
+Timestamp: 2026-02-16 12:57:57
 
 ================================================================================
 CARGANDO DATOS
 ================================================================================
-[OK] jornada_6_final.json: 9 partidos
-[OK] Stats_liga_mx.json: 657 registros
+[OK] data/inputs/jornada_7_final.json: 9 partidos
+[OK] data/inputs/Stats_liga_mx.json: 666 registros
 
 ================================================================================
 VALIDACION: MATCH UNIQUENESS
@@ -28,3 +28,33 @@ Building Multi-Tournament Weighted Prior...
 ================================================================================
 CALCULANDO LAMBDAS (FUNCION CENTRALIZADA en CORE)
 ================================================================================
+
+================================================================================
+VALIDACION: LAMBDA SANITY
+================================================================================
+Lambda Home mean: 1.325 vs League Avg: 1.389 (4.6%)
+Lambda Away mean: 1.141 vs League Avg: 1.093 (4.4%)
+[OK] Lambda means dentro de tolerancia (±10%)
+Percentiles Home: P5=0.90, P95=1.69
+Percentiles Away: P5=0.74, P95=1.51
+Rango adaptativo esperado: [0.49, 2.22]
+[OK] Percentiles dentro de rango adaptativo
+
+[Grid Mass Coverage (0-5)]
+[OK] Todos los partidos con mass coverage ≥ 0.97
+
+[Clamping Detection]
+[OK] No se detectaron lambdas clampeados
+[OK] 0 ERRORES
+
+================================================================================
+PROMEDIOS BASE (sin adjustments)
+================================================================================
+mean(lambda_home_base): 1.3253
+mean(lambda_away_base): 1.1407
+mean(lambda_total_base): 2.4660
+
+================================================================================
+GUARDANDO ARCHIVOS
+================================================================================
+[OK] CSV: outputs/diagnostico_lambda_components.csv

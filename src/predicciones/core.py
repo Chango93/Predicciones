@@ -557,8 +557,8 @@ def compute_components_and_lambdas(match_data, team_stats_current,
     
     # Apply Adjustments
     match_adj = adjustments or {}
-    lambda_home_final = lambda_home_base * match_adj.get('home_att_adj', 1.0) * match_adj.get('away_def_adj', 1.0)
-    lambda_away_final = lambda_away_base * match_adj.get('away_att_adj', 1.0) * match_adj.get('home_def_adj', 1.0)
+    lambda_home_final = lambda_home_base * match_adj.get('home_att_adj', 1.0) * match_adj.get('away_def_adj', 1.0) * match_adj.get('home_form_adj', 1.0)
+    lambda_away_final = lambda_away_base * match_adj.get('away_att_adj', 1.0) * match_adj.get('home_def_adj', 1.0) * match_adj.get('away_form_adj', 1.0)
     
     # Clamp Lambdas
     CLAMP_L_MIN = config.get('CLAMP_LAMBDA_MIN', 0.25)
