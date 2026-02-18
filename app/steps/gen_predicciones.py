@@ -15,7 +15,7 @@ def main():
     
     # 1. Load Data/Setup
     print("Loading data...")
-    print("Loading data...")
+
     with open(runtime_config['INPUT_MATCHES'], 'r', encoding='utf-8') as f:
         matches_data = json.load(f)
         
@@ -50,6 +50,12 @@ def main():
 
     
     # 3. Build Stats
+    # OPTIMIZATION: Pre-calculate canonical names for stats_df
+    if 'home_team_canonical' not in stats_df.columns:
+        stats_df['home_team_canonical'] = stats_df['home_team'].apply(dl.canonical_team_name)
+    if 'away_team_canonical' not in stats_df.columns:
+        stats_df['away_team_canonical'] = stats_df['away_team'].apply(dl.canonical_team_name)
+
     team_stats_current, _ = dl.build_team_stats_canonical(stats_df, runtime_config['CURRENT_TOURNAMENT'])
     
     # MULTI-TOURNAMENT PRIOR (Weighted)
@@ -138,12 +144,12 @@ def main():
         
         # Confidence Labeling
         ev_gap = quiniela['ev_confidence_gap']
-        if ev_gap >= 0.03:
+        if ev_gap >= 0.10:
             conf_label = 'ALTO'
-        elif ev_gap >= 0.015:
+        elif ev_gap >= 0.02:
             conf_label = 'MEDIO'
         else:
-            conf_label = 'BAJO'
+            conf_label = 'BAJO (VOLADO)'
             
         # Qualitative Notes
         notes_str = ""
@@ -182,30 +188,7 @@ def main():
         print(f"  Probs: 1({prob_home_win:.1%}) X({prob_draw:.1%}) 2({prob_away_win:.1%})")
         print(f"  Pick: {pick_1x2} (Exact: {pick_exact}) | EV: {ev:.3f} | Mass: {quiniela['captured_mass']:.3f}")
         
-        results.append({
-            'home_team_canonical': home_canon,
-            'away_team_canonical': away_canon,
-            'lambda_home_final': l_home,
-            'lambda_away_final': l_away,
-            'prob_home_win': prob_home_win,
-            'prob_draw': prob_draw,
-            'prob_away_win': prob_away_win,
-            'top_5_scorelines': '|'.join([f"{s['score']}:{s['prob']:.3f}" for s in top_5]),
-            'top_5_ev': '|'.join([f"{s['score']}:{s['ev']:.3f}" for s in quiniela['top_5_by_ev']]),
-            'pick_exact': pick_exact,
-            'pick_1x2': pick_1x2,
-            'ev': ev,
-            'ev_confidence_gap': quiniela['ev_confidence_gap'],
-            'pick_exact': pick_exact,
-            'pick_1x2': pick_1x2,
-            'ev': ev,
-            'grid_max_goals': quiniela['grid_max_goals'],
-            'captured_mass': quiniela['captured_mass'],
-            'qualitative_notes': notes_compact,
-            # Legacy fields for quick view
-            'L_Home_Final': l_home,
-            'L_Away_Final': l_away
-        })
+
 
     # Save CSV
     jornada = runtime_config.get('JORNADA', 'X')

@@ -227,9 +227,6 @@ def calculate_weighted_means_correct(team_stats_current, team_stats_prior, leagu
     
     return results
 
-# ========== FUNCION UNICA CENTRALIZADA: FUENTE DE VERDAD ==========
-
-    return results
 
 # ========== MULTI-TOURNAMENT PRIOR LOGIC ==========
 
@@ -445,8 +442,8 @@ def compute_components_and_lambdas(match_data, team_stats_current,
     LEAGUE_K = config.get('LEAGUE_AVG_K', 30.0)
     
     # Generic approx for prior if full calc not available
-    mu_home_prior = 1.45 # Conservative historical
-    mu_away_prior = 1.15
+    mu_home_prior = config.get('GENERIC_PRIOR_HOME', 1.45) # Conservative historical
+    mu_away_prior = config.get('GENERIC_PRIOR_AWAY', 1.15)
     
     # Weight
     w_league = matches_played_curr / (matches_played_curr + LEAGUE_K)

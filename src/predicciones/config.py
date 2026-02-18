@@ -16,13 +16,14 @@ def get_config(jornada):
     return {
         'JORNADA': jornada,
         'CURRENT_TOURNAMENT': 'Clausura 2026',
-        'PRIOR_TOURNAMENT': 'Apertura 2025',  # Deprecated single
         'PRIOR_TOURNAMENTS': [
             {'name': 'Clausura 2024', 'weight': 0.10},
             {'name': 'Apertura 2024', 'weight': 0.15},
             {'name': 'Clausura 2025', 'weight': 0.25},
             {'name': 'Apertura 2025', 'weight': 0.50},
         ],
+        'GENERIC_PRIOR_HOME': 1.45,
+        'GENERIC_PRIOR_AWAY': 1.15,
         'MAX_JORNADAS_CURRENT': 17,
         'EXPECTED_MATCHES_CURRENT': 153,  # 18 equipos, 17 jornadas, 9 partidos/jornada
         'EXPECTED_TEAMS': 18,
@@ -37,7 +38,7 @@ def get_config(jornada):
         'CLAMP_REL_MIN': 0.60,
         'CLAMP_REL_MAX': 1.60,
         'CLAMP_LAMBDA_MIN': 0.25,
-        'CLAMP_LAMBDA_MAX': 3.20,
+        'CLAMP_LAMBDA_MAX': 4.00,
         
         # Dynamic paths based on jornada
         'INPUT_MATCHES': f'data/inputs/jornada_{jornada}_final.json',

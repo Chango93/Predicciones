@@ -46,8 +46,13 @@ def calculate_recent_form(stats_df, team_name, match_date, n=5):
     # or just rely on the fact that we can search for the name.
     
     # Let's do it robustly.
-    df['home_canon'] = df['home_team'].apply(dl.canonical_team_name)
-    df['away_canon'] = df['away_team'].apply(dl.canonical_team_name)
+    # df['home_canon'] = df['home_team'].apply(dl.canonical_team_name) # OPTIMIZACION: Ya viene de afuera
+    # df['away_canon'] = df['away_team'].apply(dl.canonical_team_name) # OPTIMIZACION: Ya viene de afuera
+    
+    if 'home_canon' not in df.columns:
+         df['home_canon'] = df['home_team'].apply(dl.canonical_team_name)
+    if 'away_canon' not in df.columns:
+         df['away_canon'] = df['away_team'].apply(dl.canonical_team_name)
     
     team_matches = df[
         ((df['home_canon'] == team_name) | (df['away_canon'] == team_name)) & 
