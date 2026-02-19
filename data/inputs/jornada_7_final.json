@@ -46,7 +46,8 @@
                 "home": "Cruz Azul",
                 "away": "Guadalajara",
                 "jornada": "Clausura 2026 - J7",
-                "kickoff_datetime": "2026-02-21T21:00:00"
+                "kickoff_datetime": "2026-02-21T21:00:00",
+                "rivalry": true
             }
         },
         {
@@ -62,7 +63,8 @@
                 "home": "Pumas",
                 "away": "Monterrey",
                 "jornada": "Clausura 2026 - J7",
-                "kickoff_datetime": "2026-02-22T17:00:00"
+                "kickoff_datetime": "2026-02-22T17:00:00",
+                "rivalry": true
             }
         },
         {

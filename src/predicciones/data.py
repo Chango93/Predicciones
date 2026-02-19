@@ -13,7 +13,7 @@ PENALTIES = {
     'MF_REG': 0.97,      # Ajustado de 0.95 a 0.97 segun calibracion
     'FW_KEY': 0.85,      # Reduccion en ataque
     'FW_REG': 0.93,      # Ajustado de 0.91 a 0.93 segun calibracion
-    'STATUS_DUDA_FACTOR': 0.0, # Factor para reducir impacto si es Duda (0.0 = sin impacto)
+    'STATUS_DUDA_FACTOR': 0.35, # Factor para reducir impacto si es Duda (0.35 = 35% del impacto aplicado)
 }
 
 KEY_PLAYERS_CACHE = {}

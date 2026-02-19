@@ -51,7 +51,7 @@ Thumbs.db
 scripts/debug_*.py
 scripts/inspect_*.py
 temp*.py
-test_*.py
+/test_*.py
 
 # Env files
 .env

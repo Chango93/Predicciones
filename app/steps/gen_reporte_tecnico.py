@@ -14,6 +14,20 @@ import src.predicciones.data as data_loader
 import src.predicciones.quiniela as qx
 import src.predicciones.improvements as improvements
 
+def should_abstain(prob_1, prob_x, prob_2, gap, config):
+    """
+    Determina si el modelo debe abstenerse de dar un pick.
+    Criterio: Gap muy bajo Y las probabilidades están muy dispersas (aka no hay favorito claro).
+    """
+    threshold = config.get('ABSTAIN_GAP_THRESHOLD', 0.03)
+    spread_threshold = config.get('ABSTAIN_SPREAD_THRESHOLD', 0.10)
+    
+    max_p = max(prob_1, prob_x, prob_2)
+    min_p = min(prob_1, prob_x, prob_2)
+    spread = max_p - min_p
+    
+    return gap < threshold and spread < spread_threshold
+
 def main():
     runtime_config = config.resolve_config()
     print("Generando Reporte Técnico Automático...")
@@ -136,6 +150,12 @@ def main():
             conf_label = 'MEDIO 🟡'
         else:
             conf_label = 'BAJO 🔴'
+            
+        # Abstention Logic
+        if should_abstain(prob_home, prob_draw, prob_away, ev_gap, runtime_config):
+            conf_label = 'SIN VENTAJA ⚪'
+            pick_1x2 = 'N/A (Abstención)'
+            pick_exact = 'N/A'
             
         md_output.append(f"- **Confianza del pick:** {conf_label} (gap: {ev_gap:.3f})")
         md_output.append(f"- **Top 5 Marcadores:**")

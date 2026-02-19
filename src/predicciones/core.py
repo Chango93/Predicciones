@@ -1,6 +1,7 @@
 
 import unicodedata
 import re
+import logging
 from .config import CANONICAL_ALIASES
 from . import utils  # Importar utils para caché
 
@@ -380,7 +381,8 @@ def calculate_weighted_league_averages(stats_df, config):
             avg_home_sum += avgs['home'] * t_weight
             avg_away_sum += avgs['away'] * t_weight
             total_weight += t_weight
-        except:
+        except (ValueError, KeyError, TypeError) as e:
+            logging.warning(f"Error calculando avg para torneo '{t_name}': {e}")
             continue
             
     if total_weight > 0:
@@ -452,6 +454,14 @@ def compute_components_and_lambdas(match_data, team_stats_current,
     mu_away_final = w_league * league_avg_curr_raw['away'] + (1 - w_league) * mu_away_prior
     
     league_avg_smoothed = {'home': mu_home_final, 'away': mu_away_final}
+    
+    # NUEVO: Aplicar factor de ventaja local por equipo
+    home_team_raw_temp = match_data['match']['home']
+    home_canon_temp = canonical_team_name(home_team_raw_temp)
+    home_adv_factors = config.get('HOME_ADVANTAGE_FACTOR', {})
+    home_factor = home_adv_factors.get(home_canon_temp, 1.0)
+    mu_home_final = mu_home_final * home_factor
+    # mu_away_final NO se ajusta (es característica del local, no del visitante)
     
     # === 2. SETUP TEAMS ===
     home_team_raw = match_data['match']['home']
@@ -565,6 +575,14 @@ def compute_components_and_lambdas(match_data, team_stats_current,
     lambda_away_final = max(CLAMP_L_MIN, min(CLAMP_L_MAX, lambda_away_final))
     
     lambda_total_final = lambda_home_final + lambda_away_final
+
+    # NUEVO: Reducción por partido de rivalidad
+    is_rivalry = match_data.get('match', {}).get('rivalry', False)
+    RIVALRY_FACTOR = config.get('RIVALRY_LAMBDA_FACTOR', 0.88)
+    if is_rivalry:
+        lambda_home_final = lambda_home_final * RIVALRY_FACTOR
+        lambda_away_final = lambda_away_final * RIVALRY_FACTOR
+        lambda_total_final = lambda_home_final + lambda_away_final
     
     return {
         'home_team_canonical': home_canon,

@@ -22,8 +22,36 @@ def get_config(jornada):
             {'name': 'Clausura 2025', 'weight': 0.25},
             {'name': 'Apertura 2025', 'weight': 0.50},
         ],
-        'GENERIC_PRIOR_HOME': 1.45,
-        'GENERIC_PRIOR_AWAY': 1.15,
+        'GENERIC_PRIOR_HOME': 1.39,   # μ_home real Clausura 2026 (J1-J6)
+        'GENERIC_PRIOR_AWAY': 1.09,   # μ_away real Clausura 2026 (J1-J6)
+        
+        # Strategic Improvements
+        'RIVALRY_LAMBDA_FACTOR': 0.88,  # -12% goals in classics
+        'ABSTAIN_GAP_THRESHOLD': 0.03,
+        'ABSTAIN_SPREAD_THRESHOLD': 0.10,
+        
+        'HOME_ADVANTAGE_FACTOR': {
+            # Factor = GF_local/PJ / μ_global (Apertura 2025 + Clausura 2026)
+            'toluca':              1.586,
+            'tigres':              1.338,
+            'cruz azul':           1.190,
+            'guadalajara':         1.190,
+            'america':             1.136,
+            'monterrey':           1.136,
+            'atlas':               1.027,
+            'juarez':              0.991,
+            'tijuana':             0.991,
+            'santos laguna':       0.892,
+            'mazatlan':            0.892,
+            'pumas':               0.865,
+            'puebla':              0.811,
+            'leon':                0.811,
+            'necaxa':              0.811,
+            'atletico de san luis':0.811,
+            'queretaro':           0.757,
+            'pachuca':             0.694,
+        },
+
         'MAX_JORNADAS_CURRENT': 17,
         'EXPECTED_MATCHES_CURRENT': 153,  # 18 equipos, 17 jornadas, 9 partidos/jornada
         'EXPECTED_TEAMS': 18,

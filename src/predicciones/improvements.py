@@ -8,7 +8,7 @@ def calculate_recent_form(stats_df, team_name, match_date, n=5):
     Calculates a form multiplier based on the last N games.
     """
     # Ensure date column is datetime
-    if not np.issubdtype(stats_df['date'].dtype, np.datetime64):
+    if not pd.api.types.is_datetime64_any_dtype(stats_df['date']):
         stats_df['date'] = pd.to_datetime(stats_df['date'], dayfirst=True)
         
     match_date = pd.to_datetime(match_date)

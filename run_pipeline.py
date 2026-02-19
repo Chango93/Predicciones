@@ -12,6 +12,14 @@ import subprocess
 import hashlib
 from datetime import datetime
 
+# Reconfigure stdout to UTF-8 so subprocess output with emojis (✅ ⚠️) can be
+# reprinted on Windows without hitting the cp1252 codec limit.
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
+
+
 import src.predicciones.config as config
 import src.predicciones.utils as utils
 

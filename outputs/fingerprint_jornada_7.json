@@ -1,20 +1,20 @@
 {
-  "timestamp": "2026-02-16T12:57:58.586649",
+  "timestamp": "2026-02-19T16:02:55.842253",
   "config_version": "2026.02.12",
   "jornada": 7,
-  "git_commit": "1cf575c9919f78250b38fa5b683ddc5baa0a26c3",
+  "git_commit": "56b9b81a25427856625460e490ee564ae31b626e",
   "git_dirty": true,
   "input_hashes": {
     "stats": "98ca8bc67623a835da69885f6300d2d3c9cab68d4aca449388c88b34ade32b1e",
-    "matches": "37300a823ffdb8e0dbad64339e8704647543af359349b22ca4b3625dd02b1542",
+    "matches": "d902ec384a91d8ad8f4424942f8c5d046aa3f7a8300ef51e30978899fd635f55",
     "bajas": "6f19dc140c4e19404195bef0cf738d67e8ef4519a5f285d27f8afd7a6c6c6fe5",
     "qualitative": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   "config_hash": "75896554",
   "output_hashes": {
-    "outputs/predicciones_jornada_7_final.csv": "e3f1891fb1ceba107745672f19537ae8dba11fb6ed7721f6e98cc5e1588d35e8",
-    "outputs/reporte_tecnico_jornada_7.md": "4cafa689cc8b3eeb35499baa01fda1ac7a4bea85db1e3c73fac2506e2e245807",
-    "outputs/diagnostico_report.txt": "570f155533f5aebfe4460deaaf9e3cbc6f20fcba64c37659da4b3b066b4a2e2d",
-    "outputs/diagnostico_lambda_components.csv": "bc2ee76c54b544357f0dfd2f059245fffedee7577ecbb4154633b3f0670939b5"
+    "outputs/predicciones_jornada_7_final.csv": "8143124e7eafd40b15dbca114bb0b5b33e86432fe53ec38aee6e82a5dedd5ebc",
+    "outputs/reporte_tecnico_jornada_7.md": "e6a5a771f3a830aa031ea7358d98464ef767b8cf9cda1d747865e074b6c8e12d",
+    "outputs/diagnostico_report.txt": "2d47251f10fd8531407c0ece841d723888a13f135999aa879a680d463495da81",
+    "outputs/diagnostico_lambda_components.csv": "18be8fafa14b0edb75e08b0a89bbe9dd9a86751cc4c46c8a0089cb5906c6b965"
   }
 }

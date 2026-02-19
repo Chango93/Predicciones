@@ -9,6 +9,38 @@ import src.predicciones.data as data_loader
 import src.predicciones.quiniela as qx
 import src.predicciones.improvements as improvements
 
+def should_abstain(prob_1, prob_x, prob_2, gap, config):
+    """
+    Determina si el modelo debe abstenerse de dar un pick.
+    Criterio: Gap muy bajo Y las probabilidades están muy dispersas (aka no hay favorito claro).
+    """
+    threshold = config.get('ABSTAIN_GAP_THRESHOLD', 0.03)
+    spread_threshold = config.get('ABSTAIN_SPREAD_THRESHOLD', 0.10)
+    
+    max_p = max(prob_1, prob_x, prob_2)
+    min_p = min(prob_1, prob_x, prob_2)
+    spread = max_p - min_p
+    
+    # Abstenerse si el gap es despreciable
+    # Y ADEMAS la diferencia entre el más probable y el menos probable es pequeña (todo es ~33%)
+    # O simplemente si el gap es muy chico (usuario pidió "Umbral de abstención gap < 0.03")
+    # El usuario dijo: "gap < threshold and (max_p - min_p) < spread"
+    # Pero también: "Pumas vs Monterrey (gap=0.003): activaría abstención."
+    
+    # Vamos a ser estrictos con la regla propuesta:
+    is_tight = gap < threshold
+    is_balanced = spread < spread_threshold 
+    
+    # Si es muy cerrado (< 0.03), ya es candidato a abstención.
+    # Pero si hay un favorito claro (ej 60% vs 20%) y el EV gap es chico por alguna razón rara, 
+    # quizá no queramos abstenernos.
+    # La regla del usuario fue: "gap < threshold and (max_p - min_p) < spread"
+    
+    # Analisis J7 Pumas-Monterrey: P1=36%, P2=36%, X=26%. Spread ~10%. Gap 0.003.
+    # Cumple ambas.
+    
+    return is_tight and is_balanced
+
 def main():
     runtime_config = config.resolve_config()
     print(f"=== GENERADOR DE PREDICCIONES JORNADA {runtime_config.get('JORNADA', '?')} ===")
@@ -141,15 +173,20 @@ def main():
         pick_exact = quiniela['pick_exact']
         pick_1x2 = quiniela['pick_1x2']
         ev = quiniela['ev']
-        
-        # Confidence Labeling
         ev_gap = quiniela['ev_confidence_gap']
+        
         if ev_gap >= 0.10:
             conf_label = 'ALTO'
         elif ev_gap >= 0.02:
             conf_label = 'MEDIO'
         else:
             conf_label = 'BAJO (VOLADO)'
+            
+        # Abstention Logic
+        if should_abstain(prob_home_win, prob_draw, prob_away_win, ev_gap, runtime_config):
+            conf_label = 'SIN VENTAJA'
+            pick_1x2 = 'N/A'
+            pick_exact = 'N/A'
             
         # Qualitative Notes
         notes_str = ""
@@ -199,7 +236,7 @@ def main():
     cols = ['home_team_canonical', 'away_team_canonical', 'pick_1x2', 'pick_exact', 'ev', 
             'prob_home_win', 'prob_draw', 'prob_away_win', 
             'lambda_home_final', 'lambda_away_final', 
-            'top_5_scorelines', 'top_5_ev', 'ev_confidence_gap', 'grid_max_goals', 'captured_mass', 'qualitative_notes']
+            'confidence_label', 'top_5_scorelines', 'top_5_ev', 'ev_confidence_gap', 'grid_max_goals', 'captured_mass', 'qualitative_notes']
     
     # Ensure all columns exist
     for c in cols:
@@ -207,6 +244,7 @@ def main():
             df[c] = None
             
     df = df[cols]
+    df = df.drop_duplicates(subset=['home_team_canonical', 'away_team_canonical'])
     df.to_csv(out_file, index=False)
     print(f"\nGuardado en {out_file}")
 

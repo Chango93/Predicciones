@@ -1,0 +1,105 @@
+﻿================================================================================
+INICIANDO PIPELINE CANON - 2026-02-19 15:55:51.972297
+JORNADA OBJETIVO: 6
+================================================================================
+--------------------------------------------------------------------------------
+VALIDACION DE RUNTIME
+CORE IMPORTADO: C:\Users\Samuel Ramirez\.gemini\antigravity\scratch\Predicciones\src\predicciones\core.py
+  [OK] compute_components_and_lambdas existe en core
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+PREFLIGHT DE DEPENDENCIAS
+  [OK] pandas
+  [OK] scipy
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+PREFLIGHT DE INPUTS
+  [OK] data/inputs/jornada_6_final.json
+  [OK] data/inputs/Stats_liga_mx.json
+  [OK] data/inputs/evaluacion_bajas.json
+  [OK] data/inputs/Investigacion_cualitativa_jornada6.json
+--------------------------------------------------------------------------------
+
+>>> EJECUTANDO: Generaci├│n de CSV de Predicciones (app/steps/gen_predicciones.py)...
+  [OK] Completado en 0:00:00.796456
+  > === GENERADOR DE PREDICCIONES JORNADA 6 ===
+  > Loading data...
+  > Parsing qualitative data (New Dedup Flow)...
+
+>>> EJECUTANDO: Generaci├│n de Reporte Markdown (app/steps/gen_reporte_tecnico.py)...
+  [OK] Completado en 0:00:00.827342
+  > Generando Reporte T├®cnico Autom├ítico...
+  > Building Multi-Tournament Weights...
+  > Ô£à Prior cache cargado: data/processed\prior_cache_75896554.json
+
+>>> EJECUTANDO: Auditor├¡a de Sistema (Diagn├│stico) (app/steps/diagnostico_lambda.py)...
+  [ERROR] Fall├│ ejecuci├│n de app/steps/diagnostico_lambda.py
+  STDOUT: 
+================================================================================
+DIAGNOSTICO LAMBDAS - v6 REFACTORED (CORE LIB)
+================================================================================
+Timestamp: 2026-02-19 15:55:54
+
+================================================================================
+CARGANDO DATOS
+================================================================================
+[OK] data/inputs/jornada_6_final.json: 9 partidos
+[OK] data/inputs/Stats_liga_mx.json: 666 registros
+
+================================================================================
+VALIDACION: MATCH UNIQUENESS
+================================================================================
+[OK] No se detectaron duplicados evidentes
+
+================================================================================
+CONSTRUYENDO STATS CON NOMBRES CANONICOS
+================================================================================
+
+================================================================================
+VALIDACION: TEAM NAMES CONSISTENCY
+================================================================================
+[OK] Todos los 18 equipos de la jornada existen en stats
+Building Multi-Tournament Weighted Prior...
+Ô£à Prior cache cargado: data/processed\prior_cache_75896554.json
+
+================================================================================
+CALCULANDO LAMBDAS (FUNCION CENTRALIZADA en CORE)
+================================================================================
+
+================================================================================
+VALIDACION: LAMBDA SANITY
+================================================================================
+Lambda Home mean: 1.682 vs League Avg: 1.389 (21.1%)
+Lambda Away mean: 1.091 vs League Avg: 1.093 (0.1%)
+
+[ERROR] CRITICAL: Lambda Home mean desviado 21.1%: 1.682 vs 1.389
+
+  STDERR: Traceback (most recent call last):
+  File "C:\Users\Samuel Ramirez\.gemini\antigravity\scratch\Predicciones\app\steps\diagnostico_lambda.py", line 407, in <module>
+    df = run_diagnostic()
+  File "C:\Users\Samuel Ramirez\.gemini\antigravity\scratch\Predicciones\app\steps\diagnostico_lambda.py", line 239, in run_diagnostic
+    validate_lambda_sanity(df, league_avg_curr, CONFIG)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Samuel Ramirez\.gemini\antigravity\scratch\Predicciones\app\steps\diagnostico_lambda.py", line 323, in validate_lambda_sanity
+    raise ValueError(f"CRITICAL: Lambda Home mean desviado {home_diff_pct*100:.1f}%: {mean_home:.3f} vs {league_avg['home']:.3f}")
+ValueError: CRITICAL: Lambda Home mean desviado 21.1%: 1.682 vs 1.389
+Traceback (most recent call last):
+  File "C:\Users\Samuel Ramirez\.gemini\antigravity\scratch\Predicciones\app\steps\diagnostico_lambda.py", line 407, in <module>
+    df = run_diagnostic()
+  File "C:\Users\Samuel Ramirez\.gemini\antigravity\scratch\Predicciones\app\steps\diagnostico_lambda.py", line 239, in run_diagnostic
+    validate_lambda_sanity(df, league_avg_curr, CONFIG)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Samuel Ramirez\.gemini\antigravity\scratch\Predicciones\app\steps\diagnostico_lambda.py", line 323, in validate_lambda_sanity
+    raise ValueError(f"CRITICAL: Lambda Home mean desviado {home_diff_pct*100:.1f}%: {mean_home:.3f} vs {league_avg['home']:.3f}")
+ValueError: CRITICAL: Lambda Home mean desviado 21.1%: 1.682 vs 1.389
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Samuel Ramirez\.gemini\antigravity\scratch\Predicciones\app\steps\diagnostico_lambda.py", line 416, in <module>
+    sys.exit(1)
+    ^^^
+NameError: name 'sys' is not defined. Did you forget to import 'sys'?
+
+
+Pipeline ABORTADO por error.
