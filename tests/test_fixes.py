@@ -2,7 +2,7 @@
 Regression tests for the bug fixes documented in the Feb 2026 code review.
 
 Run with:
-    .venv\Scripts\python -m pytest tests/test_fixes.py -v
+    .venv\\Scripts\\python -m pytest tests/test_fixes.py -v
 """
 import logging
 import pandas as pd
