@@ -45,13 +45,16 @@ def main():
     
     league_avg_curr = dl.calculate_league_averages_by_tournament(stats_df, runtime_config['CURRENT_TOURNAMENT'])
     
-    # Parse Qualitative (Now Hybrid with Synced JSON)
-    # Using the new consolidated loader
-    adj_map = data_loader.load_bajas_penalties(runtime_config['INPUT_EVALUATION'])
-    adj_map = data_loader.load_perplexity_weekly_bajas(adj_map, runtime_config.get('INPUT_PERPLEXITY_BAJAS', 'data/inputs/perplexity_bajas_semana.json'))
+    # Parse bajas con flujo deduplicado (igual que gen_predicciones.py)
+    raw_manual = data_loader.collect_manual_bajas(runtime_config['INPUT_EVALUATION'])
+    raw_perplexity = data_loader.collect_perplexity_bajas(runtime_config.get('INPUT_PERPLEXITY_BAJAS', 'data/inputs/perplexity_bajas_semana.json'))
+    all_bajas = raw_manual + raw_perplexity
+    deduped_bajas = data_loader.deduplicate_bajas(all_bajas)
+    print(f"  > Raw Manual: {len(raw_manual)} | Raw Perplexity: {len(raw_perplexity)}")
+    print(f"  > Deduplicated Total: {len(deduped_bajas)} (Removed {len(all_bajas) - len(deduped_bajas)} duplicates)")
+    adj_map = {}
+    data_loader.apply_bajas_list(adj_map, deduped_bajas)
     adj_map = data_loader.load_qualitative_adjustments(adj_map, runtime_config['INPUT_QUALITATIVE'])
-    
-    # We no longer check for 'ligamx_clausura2026_injuries.json' separately as logic is merged.   
     # OUTPUT MARKDOWN BUILDER
     md_output = []
     # ... header lines ...

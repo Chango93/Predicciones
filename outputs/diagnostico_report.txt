@@ -2,7 +2,7 @@
 ================================================================================
 DIAGNOSTICO LAMBDAS - v6 REFACTORED (CORE LIB)
 ================================================================================
-Timestamp: 2026-02-19 23:08:15
+Timestamp: 2026-02-19 23:13:32
 
 ================================================================================
 CARGANDO DATOS
@@ -34,3 +34,31 @@ VALIDACION: LAMBDA SANITY
 ================================================================================
 Lambda Home mean: 1.682 vs League Avg: 1.389 (21.1%)
 Lambda Away mean: 1.091 vs League Avg: 1.093 (0.1%)
+[WARNING] Lambda Home mean desviado 21.1%: 1.682 vs 1.389 (>10%, variacion jornada normal)
+[OK] Lambda means dentro de tolerancia (±25% CRITICO)
+Percentiles Home: P5=1.15, P95=2.66
+Percentiles Away: P5=0.76, P95=1.81
+Rango adaptativo esperado: [0.55, 2.50]
+⚠️ WARNING: Percentiles fuera de rango adaptativo. Revisar ajustes cualitativos.
+
+[Grid Mass Coverage (0-5)]
+⚠️ WARNING: toluca vs tijuana: Grid mass=0.921 < 0.97 (λ_h=2.95, λ_a=0.92)
+[INFO] 1 partidos con grid mass < 0.97. Considerar ampliar grid si necesario.
+
+[Clamping Detection]
+[OK] No se detectaron lambdas clampeados
+[OK] 0 ERRORES
+
+================================================================================
+PROMEDIOS BASE (sin adjustments)
+================================================================================
+mean(lambda_home_base): 1.6818
+mean(lambda_away_base): 1.0912
+mean(lambda_total_base): 2.7730
+
+[WARNING] home_base desviado > 0.20 (0.2929)
+
+================================================================================
+GUARDANDO ARCHIVOS
+================================================================================
+[OK] CSV: outputs/diagnostico_lambda_components.csv
