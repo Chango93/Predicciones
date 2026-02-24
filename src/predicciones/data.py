@@ -457,8 +457,11 @@ def _apply_scaled_adjustment(team_adjustments, team_name, player, role, impact_l
 
     is_key = (impact_level or '').lower() == 'high'
 
-    # Sin impacto en duda por diseño conservador
-    impact_factor = PENALTIES.get('STATUS_DUDA_FACTOR', 0.5) if 'duda' in status_l else 1.0
+    # Jugadores en duda: ignorar completamente — el ruido supera al beneficio
+    if 'duda' in status_l:
+        return
+
+    impact_factor = 1.0
 
     recency_days = max(0, min(30, int(recency_days or 0)))
     recency_factor = max(0.55, 1.0 - (recency_days / 31.0) * 0.45)

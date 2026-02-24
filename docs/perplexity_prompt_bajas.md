@@ -1,4 +1,4 @@
-# Prompt para Perplexity (bajas semanales, usando imagen del fixture y control anti-desactualización)
+# Prompt para Perplexity — Bajas semanales Liga MX
 
 Copia y pega este prompt en Perplexity y adjunta la imagen del fixture de la jornada.
 
@@ -8,7 +8,7 @@ Te voy a adjuntar una **imagen del fixture de la jornada** de Liga MX.
 Necesito que generes un reporte de bajas **en JSON puro** (sin texto adicional, sin markdown) para alimentar un modelo de predicción.
 
 ## Objetivo
-Incluir solo bajas vigentes y jugadores correctos para los partidos de la jornada mostrada en la imagen.
+Incluir solo bajas **confirmadas** y vigentes para los partidos de la jornada mostrada en la imagen.
 
 ## Reglas críticas (obligatorias)
 1. Usa la imagen para identificar **solo equipos que sí juegan esta jornada**.
@@ -18,8 +18,8 @@ Incluir solo bajas vigentes y jugadores correctos para los partidos de la jornad
 5. Excluye noticias viejas/no confirmadas.
 6. Si una noticia tiene más de 21 días sin confirmación reciente, no la incluyas.
 7. Si no puedes confirmar vigencia para el siguiente partido, marca `is_active_for_next_match: false`.
-8. No usar la página https://www.lesionadosysuspendidos.mx.
-
+8. **NO usar la página https://www.lesionadosysuspendidos.mx**.
+9. **NO incluir jugadores en duda** (`status: "Duda"`). Solo bajas confirmadas: `"Fuera"` o `"Suspendido"`. Si no hay certeza de que el jugador se pierde el partido, omitirlo completamente.
 
 ## Verificación mínima requerida por registro
 - Debe tener al menos una fuente confiable reciente.
@@ -33,71 +33,47 @@ Incluir solo bajas vigentes y jugadores correctos para los partidos de la jornad
 
 ## Reglas de formato
 1. Devuelve **solo JSON válido**.
-2. `confidence` entre `0.30` y `1.00`.
+2. `confidence` entre `0.50` y `1.00` (las bajas confirmadas tienen confianza alta).
 3. `impact_level`: `High`, `Mid`, `Low`.
 4. `role`: `Portero`, `Defensa`, `Mediocampista`, `Delantero`.
-5. Equipos en español (ej. "América", "Pumas", "Cruz Azul").
-# Prompt para Perplexity (bajas semanales)
-
-Copia y pega este prompt en Perplexity para generar el archivo que consume el modelo.
-
----
-
-Necesito un reporte **estructurado en JSON puro** (sin texto adicional, sin markdown) sobre bajas de Liga MX para la semana actual.
-
-Objetivo: usarlo en un modelo de predicción de quiniela.
-
-## Reglas
-1. Devuelve **solo JSON válido**.
-2. Incluye solo jugadores de **impacto real** para el partido de esta semana.
-3. Si hay duda, usa `status: "Duda"` y `confidence` más baja.
-4. `confidence` debe estar entre `0.30` y `1.00`.
-5. `recency_days` = días transcurridos desde la noticia/confirmación principal.
-6. `impact_level` solo puede ser: `High`, `Mid`, `Low`.
-7. `role` solo puede ser uno de: `Portero`, `Defensa`, `Mediocampista`, `Delantero`.
-8. Equipos en español (ej. "América", "Pumas", "Cruz Azul").
+5. `status`: solo `"Fuera"` o `"Suspendido"`. Nunca `"Duda"`.
+6. Equipos en español (ej. "América", "Pumas", "Cruz Azul").
 
 ## Formato exacto esperado
+```json
 {
-  "week_reference": "2026-W06",
+  "week_reference": "2026-W09",
   "source": "perplexity",
-  "generated_at": "2026-02-12T12:00:00Z",
+  "generated_at": "2026-02-24T12:00:00Z",
   "bajas": [
     {
-      "team": "Tigres",
-      "current_team": "Tigres",
       "team": "América",
+      "current_team": "América",
       "player": "Jugador Ejemplo",
       "role": "Delantero",
       "status": "Fuera",
       "impact_level": "High",
-      "confidence": 0.86,
-      "recency_days": 1,
+      "confidence": 0.90,
+      "recency_days": 2,
       "is_active_for_next_match": true,
       "is_retired": false,
       "is_transferred_out": false,
       "verification_status": "confirmed",
-      "last_verified_at": "2026-02-12T09:30:00Z",
+      "last_verified_at": "2026-02-24T09:30:00Z",
       "reason": "Lesión muscular",
       "evidence": "https://..."
     }
   ]
 }
+```
 
 ## Salida final
-Entrega **únicamente** el JSON.
-      "reason": "Lesión muscular",
-      "evidence": "URL o fuente breve"
-    }
-  ]
-}
-
-## Cobertura
-Incluye solo equipos de Liga MX y jugadores con impacto probable en la próxima jornada.
+Entrega **únicamente** el JSON. Sin explicaciones, sin markdown.
 
 ---
 
 ## Cómo guardarlo
+
 Guardar el resultado como:
 
 `data/inputs/perplexity_bajas_semana.json`
