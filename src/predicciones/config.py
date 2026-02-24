@@ -29,6 +29,7 @@ def get_config(jornada):
         'RIVALRY_LAMBDA_FACTOR': 0.88,  # -12% goals in classics
         'ABSTAIN_GAP_THRESHOLD': 0.03,
         'ABSTAIN_SPREAD_THRESHOLD': 0.10,
+        'ABSTAIN_MIN_PROB': 0.40,       # Abstenerse si ningún resultado supera 40%
         
         'HOME_ADVANTAGE_FACTOR': {
             # Factor = GF_local/PJ / μ_global (Apertura 2025 + Clausura 2026)
