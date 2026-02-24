@@ -2,13 +2,13 @@
 ================================================================================
 DIAGNOSTICO LAMBDAS - v6 REFACTORED (CORE LIB)
 ================================================================================
-Timestamp: 2026-02-24 16:57:17
+Timestamp: 2026-02-24 17:25:15
 
 ================================================================================
 CARGANDO DATOS
 ================================================================================
 [OK] data/inputs/jornada_8_final.json: 9 partidos
-[OK] data/inputs/Stats_liga_mx.json: 666 registros
+[OK] data/inputs/Stats_liga_mx.json: 674 registros
 
 ================================================================================
 VALIDACION: MATCH UNIQUENESS
@@ -32,16 +32,17 @@ CALCULANDO LAMBDAS (FUNCION CENTRALIZADA en CORE)
 ================================================================================
 VALIDACION: LAMBDA SANITY
 ================================================================================
-Lambda Home mean: 1.453 vs League Avg: 1.389 (4.6%)
-Lambda Away mean: 1.195 vs League Avg: 1.093 (9.4%)
+Lambda Home mean: 1.473 vs League Avg: 1.387 (6.2%)
+Lambda Away mean: 1.217 vs League Avg: 1.177 (3.4%)
 [OK] Lambda means dentro de tolerancia (±10%)
-Percentiles Home: P5=1.00, P95=2.03
-Percentiles Away: P5=0.87, P95=1.64
-Rango adaptativo esperado: [0.53, 2.38]
+Percentiles Home: P5=1.01, P95=2.11
+Percentiles Away: P5=0.88, P95=1.69
+Rango adaptativo esperado: [0.54, 2.42]
 [OK] Percentiles dentro de rango adaptativo
 
 [Grid Mass Coverage (0-5)]
-[OK] Todos los partidos con mass coverage ≥ 0.97
+⚠️ WARNING: toluca vs guadalajara: Grid mass=0.966 < 0.97 (λ_h=2.35, λ_a=1.23)
+[INFO] 1 partidos con grid mass < 0.97. Considerar ampliar grid si necesario.
 
 [Clamping Detection]
 [OK] No se detectaron lambdas clampeados
@@ -50,9 +51,9 @@ Rango adaptativo esperado: [0.53, 2.38]
 ================================================================================
 PROMEDIOS BASE (sin adjustments)
 ================================================================================
-mean(lambda_home_base): 1.4532
-mean(lambda_away_base): 1.1954
-mean(lambda_total_base): 2.6486
+mean(lambda_home_base): 1.4730
+mean(lambda_away_base): 1.2174
+mean(lambda_total_base): 2.6905
 
 ================================================================================
 GUARDANDO ARCHIVOS
