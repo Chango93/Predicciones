@@ -203,10 +203,6 @@ def main():
             'confidence_label': conf_label,
             'qualitative_notes': notes_str
         })
-        notes_home = adj_map.get(home_canon, {}).get('notes', [])
-        notes_away = adj_map.get(away_canon, {}).get('notes', [])
-        notes_compact = ' | '.join(notes_home + notes_away) if notes_home or notes_away else ''
-
         # Print summary
         print(f"\n{home_raw} vs {away_raw}")
         print(f"  Lambda Final: {l_home:.2f} - {l_away:.2f}")

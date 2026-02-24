@@ -161,11 +161,7 @@ def collect_manual_bajas(file_path="data/inputs/evaluacion_bajas.json"):
         elif auto_imp == 'Mid' and impact == 'Low':
              impact = 'Mid'
              
-        # Minute Gate
-        # Create temp dict for gate function
-        temp_item = item.copy()
-        temp_item['manual_impact_level'] = impact
-        impact = apply_minutes_gate(temp_item)
+        # Minute Gate: skipped for manual entries (user has explicitly validated these)
 
         bajas_list.append({
             'team': team,
