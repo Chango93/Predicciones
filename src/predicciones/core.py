@@ -183,7 +183,7 @@ def calculate_weighted_means_correct(team_stats_current, team_stats_prior, leagu
             def_away = gc_away / pj_away
             
             att_away_rel = att_away / league_avg_curr['away']
-            def_away_rel = def_away / league_avg_curr['home']
+            def_away_rel = def_away / league_avg_curr['away']
             
             att_away_sum += att_away_rel * pj_away
             def_away_sum += def_away_rel * pj_away
@@ -455,19 +455,16 @@ def compute_components_and_lambdas(match_data, team_stats_current,
     
     league_avg_smoothed = {'home': mu_home_final, 'away': mu_away_final}
     
-    # NUEVO: Aplicar factor de ventaja local por equipo
-    home_team_raw_temp = match_data['match']['home']
-    home_canon_temp = canonical_team_name(home_team_raw_temp)
-    home_adv_factors = config.get('HOME_ADVANTAGE_FACTOR', {})
-    home_factor = home_adv_factors.get(home_canon_temp, 1.0)
-    mu_home_final = mu_home_final * home_factor
-    # mu_away_final NO se ajusta (es característica del local, no del visitante)
-    
     # === 2. SETUP TEAMS ===
     home_team_raw = match_data['match']['home']
     away_team_raw = match_data['match']['away']
     home_canon = canonical_team_name(home_team_raw)
     away_canon = canonical_team_name(away_team_raw)
+
+    home_adv_factors = config.get('HOME_ADVANTAGE_FACTOR', {})
+    home_factor = home_adv_factors.get(home_canon, 1.0)
+    if home_canon not in home_adv_factors:
+        logging.warning(f"HOME_ADVANTAGE_FACTOR no encontrado para '{home_canon}', usando 1.0")
     
     curr_home = team_stats_current.get(home_canon, {})
     curr_away = team_stats_current.get(away_canon, {})
@@ -559,30 +556,29 @@ def compute_components_and_lambdas(match_data, team_stats_current,
     def_away_final = clamp_rel(def_away_final_raw)
     
     # === 7. CALCULATE LAMBDAS ===
-    lambda_home_base = att_home_final * def_away_final * mu_home_final
+    lambda_home_base = att_home_final * def_away_final * mu_home_final * home_factor
     lambda_away_base = att_away_final * def_home_final * mu_away_final
     
     # Apply Adjustments
     match_adj = adjustments or {}
     lambda_home_final = lambda_home_base * match_adj.get('home_att_adj', 1.0) * match_adj.get('away_def_adj', 1.0) * match_adj.get('home_form_adj', 1.0)
     lambda_away_final = lambda_away_base * match_adj.get('away_att_adj', 1.0) * match_adj.get('home_def_adj', 1.0) * match_adj.get('away_form_adj', 1.0)
-    
-    # Clamp Lambdas
-    CLAMP_L_MIN = config.get('CLAMP_LAMBDA_MIN', 0.25)
-    CLAMP_L_MAX = config.get('CLAMP_LAMBDA_MAX', 3.20)
-    
-    lambda_home_final = max(CLAMP_L_MIN, min(CLAMP_L_MAX, lambda_home_final))
-    lambda_away_final = max(CLAMP_L_MIN, min(CLAMP_L_MAX, lambda_away_final))
-    
-    lambda_total_final = lambda_home_final + lambda_away_final
 
-    # NUEVO: Reducción por partido de rivalidad
+    # Apply rivalry reduction BEFORE clamp
     is_rivalry = match_data.get('match', {}).get('rivalry', False)
     RIVALRY_FACTOR = config.get('RIVALRY_LAMBDA_FACTOR', 0.88)
     if is_rivalry:
         lambda_home_final = lambda_home_final * RIVALRY_FACTOR
         lambda_away_final = lambda_away_final * RIVALRY_FACTOR
-        lambda_total_final = lambda_home_final + lambda_away_final
+
+    # Clamp Lambdas
+    CLAMP_L_MIN = config.get('CLAMP_LAMBDA_MIN', 0.25)
+    CLAMP_L_MAX = config.get('CLAMP_LAMBDA_MAX', 3.20)
+
+    lambda_home_final = max(CLAMP_L_MIN, min(CLAMP_L_MAX, lambda_home_final))
+    lambda_away_final = max(CLAMP_L_MIN, min(CLAMP_L_MAX, lambda_away_final))
+
+    lambda_total_final = lambda_home_final + lambda_away_final
     
     return {
         'home_team_canonical': home_canon,
