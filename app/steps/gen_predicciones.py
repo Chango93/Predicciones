@@ -12,34 +12,22 @@ import src.predicciones.improvements as improvements
 def should_abstain(prob_1, prob_x, prob_2, gap, config):
     """
     Determina si el modelo debe abstenerse de dar un pick.
-    Criterio: Gap muy bajo Y las probabilidades están muy dispersas (aka no hay favorito claro).
+    Criterio A: Gap muy bajo Y probabilidades muy equilibradas (sin favorito claro).
+    Criterio B: Ningún resultado supera la probabilidad mínima de confianza.
     """
     threshold = config.get('ABSTAIN_GAP_THRESHOLD', 0.03)
     spread_threshold = config.get('ABSTAIN_SPREAD_THRESHOLD', 0.10)
-    
+    min_prob_threshold = config.get('ABSTAIN_MIN_PROB', 0.40)
+
     max_p = max(prob_1, prob_x, prob_2)
     min_p = min(prob_1, prob_x, prob_2)
     spread = max_p - min_p
-    
-    # Abstenerse si el gap es despreciable
-    # Y ADEMAS la diferencia entre el más probable y el menos probable es pequeña (todo es ~33%)
-    # O simplemente si el gap es muy chico (usuario pidió "Umbral de abstención gap < 0.03")
-    # El usuario dijo: "gap < threshold and (max_p - min_p) < spread"
-    # Pero también: "Pumas vs Monterrey (gap=0.003): activaría abstención."
-    
-    # Vamos a ser estrictos con la regla propuesta:
+
     is_tight = gap < threshold
-    is_balanced = spread < spread_threshold 
-    
-    # Si es muy cerrado (< 0.03), ya es candidato a abstención.
-    # Pero si hay un favorito claro (ej 60% vs 20%) y el EV gap es chico por alguna razón rara, 
-    # quizá no queramos abstenernos.
-    # La regla del usuario fue: "gap < threshold and (max_p - min_p) < spread"
-    
-    # Analisis J7 Pumas-Monterrey: P1=36%, P2=36%, X=26%. Spread ~10%. Gap 0.003.
-    # Cumple ambas.
-    
-    return is_tight and is_balanced
+    is_balanced = spread < spread_threshold
+    is_low_confidence = max_p < min_prob_threshold
+
+    return (is_tight and is_balanced) or is_low_confidence
 
 def main():
     runtime_config = config.resolve_config()
