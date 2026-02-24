@@ -161,11 +161,7 @@ def collect_manual_bajas(file_path="data/inputs/evaluacion_bajas.json"):
         elif auto_imp == 'Mid' and impact == 'Low':
              impact = 'Mid'
              
-        # Minute Gate
-        # Create temp dict for gate function
-        temp_item = item.copy()
-        temp_item['manual_impact_level'] = impact
-        impact = apply_minutes_gate(temp_item)
+        # Minute Gate: skipped for manual entries (user has explicitly validated these)
 
         bajas_list.append({
             'team': team,
@@ -461,8 +457,11 @@ def _apply_scaled_adjustment(team_adjustments, team_name, player, role, impact_l
 
     is_key = (impact_level or '').lower() == 'high'
 
-    # Sin impacto en duda por diseño conservador
-    impact_factor = PENALTIES.get('STATUS_DUDA_FACTOR', 0.5) if 'duda' in status_l else 1.0
+    # Jugadores en duda: ignorar completamente — el ruido supera al beneficio
+    if 'duda' in status_l:
+        return
+
+    impact_factor = 1.0
 
     recency_days = max(0, min(30, int(recency_days or 0)))
     recency_factor = max(0.55, 1.0 - (recency_days / 31.0) * 0.45)
@@ -541,6 +540,100 @@ def _apply_scaled_adjustment(team_adjustments, team_name, player, role, impact_l
         'type': affects
     })
 
+
+
+
+# === CONTEXT ADJUSTMENTS (Structured Qualitative) ===
+
+VALID_CONTEXT_TYPES = {
+    'squad_fatigue',       # Multiple games in short window (Concachampions, Copa, etc.)
+    'rotation_expected',   # Coach announced rotation / rest of starters
+    'tactical_change',     # New formation, new coach, significant system change
+    'suspension',          # Disciplinary (yellow accumulation, red card — NOT injury)
+    'motivation_crisis',   # Bad run + management conflict + relegation pressure
+    'motivation_boost',    # Must-win derby, historic milestone, home debut of key player
+}
+
+def collect_context_adjustments(file_path):
+    """
+    Loads structured context adjustments from JSON.
+    Each entry has team, type, att_adj, def_adj, confidence, evidence.
+    Effect is scaled: final_adj = 1.0 + (base_adj - 1.0) * confidence
+    Returns list of processed dicts ready to apply.
+    """
+    if not file_path or not os.path.exists(file_path):
+        return []
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"WARNING: Could not load context adjustments from {file_path}: {e}")
+        return []
+
+    raw_items = data.get('context_adjustments', [])
+    if not isinstance(raw_items, list):
+        return []
+
+    result = []
+    for item in raw_items:
+        team = dl.canonical_team_name(item.get('team', ''))
+        if not team:
+            continue
+
+        ctx_type = item.get('type', 'unknown')
+        att_adj_base = float(item.get('att_adj', 1.0))
+        def_adj_base = float(item.get('def_adj', 1.0))
+        confidence = max(0.30, min(1.0, float(item.get('confidence', 0.75))))
+
+        # Scale effect magnitude by confidence:
+        # If att_adj=0.95 and confidence=0.5 → actual effect = 0.975 (half the suppression)
+        att_adj_scaled = 1.0 + (att_adj_base - 1.0) * confidence
+        def_adj_scaled = 1.0 + (def_adj_base - 1.0) * confidence
+
+        note_text = item.get('notes', item.get('evidence', ''))
+
+        result.append({
+            'team': team,
+            'match': item.get('match', ''),
+            'type': ctx_type,
+            'att_adj': att_adj_scaled,
+            'def_adj': def_adj_scaled,
+            'confidence': confidence,
+            'note': note_text,
+        })
+
+    return result
+
+
+def apply_context_adjustments(team_adjustments, context_list):
+    """
+    Applies structured context adjustments to team_adjustments dict.
+    Works on top of existing bajas adjustments — multiplicative.
+    """
+    for item in context_list:
+        team = item['team']
+        _ensure_team_adjustment(team_adjustments, team)
+
+        team_adjustments[team]['att_adj'] *= item['att_adj']
+        team_adjustments[team]['def_adj'] *= item['def_adj']
+
+        pct_att = (item['att_adj'] - 1.0) * 100
+        pct_def = (item['def_adj'] - 1.0) * 100
+        note = (
+            f"CONTEXT | {item['type']} conf={item['confidence']:.2f}"
+            + (f" Att{pct_att:+.1f}%" if abs(pct_att) > 0.1 else "")
+            + (f" Def{pct_def:+.1f}%" if abs(pct_def) > 0.1 else "")
+            + f": {item['note'][:80]}"
+        )
+        team_adjustments[team]['notes'].append(note)
+        team_adjustments[team]['report_log'].append({
+            'desc': f"Contexto ({item['type']}): {item['note'][:60]}",
+            'pct': pct_att,
+            'type': 'HOME'
+        })
+
+    return team_adjustments
 
 
 def load_perplexity_weekly_bajas(team_adjustments, file_path="data/inputs/perplexity_bajas_semana.json"):

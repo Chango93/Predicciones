@@ -72,6 +72,7 @@ def get_config(jornada):
         # Dynamic paths based on jornada
         'INPUT_MATCHES': f'data/inputs/jornada_{jornada}_final.json',
         'INPUT_QUALITATIVE': f'data/inputs/Investigacion_cualitativa_jornada{jornada}.json',
+        'INPUT_CONTEXT': f'data/inputs/context_adjustments_jornada{jornada}.json',
         'INPUT_EVALUATION': 'data/inputs/evaluacion_bajas.json',  # Común a todas
         'INPUT_PERPLEXITY_BAJAS': 'data/inputs/perplexity_bajas_semana.json',
         'INPUT_STATS': 'data/inputs/Stats_liga_mx.json',  # Común a todas
