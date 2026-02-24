@@ -2,12 +2,12 @@
 ================================================================================
 DIAGNOSTICO LAMBDAS - v6 REFACTORED (CORE LIB)
 ================================================================================
-Timestamp: 2026-02-24 16:30:31
+Timestamp: 2026-02-24 16:57:17
 
 ================================================================================
 CARGANDO DATOS
 ================================================================================
-[OK] data/inputs/jornada_7_final.json: 9 partidos
+[OK] data/inputs/jornada_8_final.json: 9 partidos
 [OK] data/inputs/Stats_liga_mx.json: 666 registros
 
 ================================================================================
@@ -32,12 +32,12 @@ CALCULANDO LAMBDAS (FUNCION CENTRALIZADA en CORE)
 ================================================================================
 VALIDACION: LAMBDA SANITY
 ================================================================================
-Lambda Home mean: 1.260 vs League Avg: 1.389 (9.3%)
-Lambda Away mean: 1.119 vs League Avg: 1.093 (2.4%)
+Lambda Home mean: 1.453 vs League Avg: 1.389 (4.6%)
+Lambda Away mean: 1.195 vs League Avg: 1.093 (9.4%)
 [OK] Lambda means dentro de tolerancia (±10%)
-Percentiles Home: P5=0.73, P95=1.91
-Percentiles Away: P5=0.73, P95=1.50
-Rango adaptativo esperado: [0.48, 2.14]
+Percentiles Home: P5=1.00, P95=2.03
+Percentiles Away: P5=0.87, P95=1.64
+Rango adaptativo esperado: [0.53, 2.38]
 [OK] Percentiles dentro de rango adaptativo
 
 [Grid Mass Coverage (0-5)]
@@ -50,9 +50,9 @@ Rango adaptativo esperado: [0.48, 2.14]
 ================================================================================
 PROMEDIOS BASE (sin adjustments)
 ================================================================================
-mean(lambda_home_base): 1.2781
-mean(lambda_away_base): 1.1328
-mean(lambda_total_base): 2.4109
+mean(lambda_home_base): 1.4532
+mean(lambda_away_base): 1.1954
+mean(lambda_total_base): 2.6486
 
 ================================================================================
 GUARDANDO ARCHIVOS
