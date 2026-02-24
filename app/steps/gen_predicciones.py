@@ -59,9 +59,17 @@ def main():
     adj_map = {} # Initialize empty
     data_loader.apply_bajas_list(adj_map, deduped_bajas)
     
-    # D. Qualitative Context (Existing)
+    # D. Qualitative Context (legacy free-text parser, kept for backwards compat)
     adj_map = data_loader.load_qualitative_adjustments(adj_map, runtime_config['INPUT_QUALITATIVE'])
-    
+
+    # E. Structured Context Adjustments (fatigue, rotation, suspension, motivation...)
+    context_list = data_loader.collect_context_adjustments(runtime_config.get('INPUT_CONTEXT', ''))
+    if context_list:
+        print(f"  > Context adjustments loaded: {len(context_list)} entries")
+        adj_map = data_loader.apply_context_adjustments(adj_map, context_list)
+    else:
+        print("  > No context adjustments file for this jornada (optional)")
+
     # Debug adjustments
     print("\nADJUSTMENTS APPLIED:")
     for team, data in adj_map.items():
