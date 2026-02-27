@@ -55,6 +55,14 @@ def main():
     adj_map = {}
     data_loader.apply_bajas_list(adj_map, deduped_bajas)
     adj_map = data_loader.load_qualitative_adjustments(adj_map, runtime_config['INPUT_QUALITATIVE'])
+
+    # Structured context adjustments (same channel as gen_predicciones.py)
+    context_list = data_loader.collect_context_adjustments(runtime_config.get('INPUT_CONTEXT', ''))
+    if context_list:
+        print(f"  > Context adjustments loaded: {len(context_list)} entries")
+        adj_map = data_loader.apply_context_adjustments(adj_map, context_list)
+    else:
+        print("  > No context adjustments file for this jornada (optional)")
     # OUTPUT MARKDOWN BUILDER
     md_output = []
     # ... header lines ...

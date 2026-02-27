@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-02-24T17:25:19.117823",
+  "timestamp": "2026-02-27T04:50:47.916323",
   "config_version": "2026.02.12",
   "jornada": 8,
-  "git_commit": "497a3a9982bc25109e3afb5491225a05c79706aa",
+  "git_commit": "dc3bc7595ad873b7296b5589572251f9827143be",
   "git_dirty": true,
   "input_hashes": {
     "stats": "7c6861ac2a225943d8a2d8a9316c0ce11099b31adb652f1d11436b811719b677",
@@ -12,9 +12,9 @@
   },
   "config_hash": "75896554",
   "output_hashes": {
-    "outputs/predicciones_jornada_8_final.csv": "af7417b988400743802c508bee06c6fc2121e683322ed7400914e62ad6253344",
-    "outputs/reporte_tecnico_jornada_8.md": "9611fcfc7dad2ec7fbbcd29d04d3ad29ed5287d527346600af69fc8dc1610c03",
-    "outputs/diagnostico_report.txt": "d340427d856ed7fd3a77b603422fcdcaf06166699d0d171e726b5e042fc5903c",
+    "outputs/predicciones_jornada_8_final.csv": "c0489ee499e42b00eeabb3db16c110c5be6235e32ca0ffd4595308c105830ec0",
+    "outputs/reporte_tecnico_jornada_8.md": "d0dc5837cabe4ee6504079692b02e79b7f38954637400dca7535c69b6bdce561",
+    "outputs/diagnostico_report.txt": "12e63fa60e23fe2150595c68360c47c6e1df0f3d09b71343a0352386c9483b74",
     "outputs/diagnostico_lambda_components.csv": "f071f66765193aa509552b813e7025195b196cb2de7f81464e13f742d2759e43"
   }
 }
