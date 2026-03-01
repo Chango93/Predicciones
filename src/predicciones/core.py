@@ -393,6 +393,43 @@ def calculate_weighted_league_averages(stats_df, config):
         }
     return {'home': 0, 'away': 0, 'total': 0} # Should not happen
 
+# ========== TABLA DE POSICIONES ACTUAL ==========
+
+def calculate_current_table(stats_df, tournament):
+    """
+    Calcula la tabla de posiciones actual a partir de los partidos registrados.
+
+    Returns: dict {team_canonical: {'pts': int, 'pj': int, 'gd': int}}
+    """
+    tournament_matches = stats_df[stats_df['tournament'] == tournament].copy()
+
+    table = {}
+    for _, match in tournament_matches.iterrows():
+        home = canonical_team_name(match['home_team'])
+        away = canonical_team_name(match['away_team'])
+        hg = int(match['home_goals'])
+        ag = int(match['away_goals'])
+
+        for team in (home, away):
+            if team not in table:
+                table[team] = {'pts': 0, 'pj': 0, 'gd': 0}
+
+        table[home]['pj'] += 1
+        table[away]['pj'] += 1
+        table[home]['gd'] += hg - ag
+        table[away]['gd'] += ag - hg
+
+        if hg > ag:
+            table[home]['pts'] += 3
+        elif hg == ag:
+            table[home]['pts'] += 1
+            table[away]['pts'] += 1
+        else:
+            table[away]['pts'] += 3
+
+    return table
+
+
 # ========== FUNCION UNICA CENTRALIZADA: FUENTE DE VERDAD ==========
 
 def compute_components_and_lambdas(match_data, team_stats_current, 

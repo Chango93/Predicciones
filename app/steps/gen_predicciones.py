@@ -85,14 +85,18 @@ def main():
         stats_df['away_team_canonical'] = stats_df['away_team'].apply(dl.canonical_team_name)
 
     team_stats_current, _ = dl.build_team_stats_canonical(stats_df, runtime_config['CURRENT_TOURNAMENT'])
-    
+
     # MULTI-TOURNAMENT PRIOR (Weighted)
     print("Building Multi-Tournament Weighted Prior...")
     prior_weighted_stats = dl.build_weighted_prior_stats(stats_df, runtime_config)
-    
+
     # Calculate League Avgs (Current only needed for main calculation)
     league_avg_curr = dl.calculate_league_averages_by_tournament(stats_df, runtime_config['CURRENT_TOURNAMENT'])
     # league_avg_prior not needed for computation anymore (baked into weighted stats) but verify signature
+
+    # Compute current table for equilibrium detection
+    current_table = dl.calculate_current_table(stats_df, runtime_config['CURRENT_TOURNAMENT'])
+    dc_rho_base = runtime_config.get('DC_RHO', -0.10)
     
     # 4. Generate Predictions
     print("Generating predictions...")
@@ -114,14 +118,37 @@ def main():
         form_mult_away, form_details_away = improvements.calculate_recent_form(
              stats_df, away_canon, match['match']['kickoff_datetime'], runtime_config.get('RECENT_FORM_GAMES', 5)
         )
-        
+
+        # Momentum direction (aceleración/desaceleración dentro de la ventana de forma)
+        momentum_home, momentum_info_home = improvements.calculate_momentum_direction(
+            stats_df, home_canon, match['match']['kickoff_datetime'],
+            threshold=runtime_config.get('MOMENTUM_THRESHOLD', 0.20),
+            bonus_max=runtime_config.get('MOMENTUM_BONUS_MAX', 0.02),
+        )
+        momentum_away, momentum_info_away = improvements.calculate_momentum_direction(
+            stats_df, away_canon, match['match']['kickoff_datetime'],
+            threshold=runtime_config.get('MOMENTUM_THRESHOLD', 0.20),
+            bonus_max=runtime_config.get('MOMENTUM_BONUS_MAX', 0.02),
+        )
+
+        # Home crisis / stronghold (basado solo en partidos de local)
+        home_crisis_mult, crisis_info = improvements.calculate_home_crisis_factor(
+            stats_df, home_canon, match['match']['kickoff_datetime'],
+            n_home=runtime_config.get('N_HOME_FORM', 4),
+            crisis_threshold=runtime_config.get('HOME_CRISIS_WINS_THRESHOLD', 1),
+        )
+
+        # Combined home form adjustment: forma general × momentum × crisis local
+        combined_home_form = form_mult_home * momentum_home * home_crisis_mult
+        combined_away_form = form_mult_away * momentum_away
+
         match_adjustments = {
             'home_att_adj': 1.0, 'home_def_adj': 1.0,
             'away_att_adj': 1.0, 'away_def_adj': 1.0,
-            'home_form_adj': form_mult_home,
-            'away_form_adj': form_mult_away
+            'home_form_adj': combined_home_form,
+            'away_form_adj': combined_away_form,
         }
-        
+
         # Log Form
         if abs(form_mult_home - 1.0) > 0.001:
              print(f"  > HOME FORM: {home_canon} {form_details_home['pct']:.2f} -> {form_mult_home:.3f}")
@@ -132,6 +159,28 @@ def main():
              print(f"  > AWAY FORM: {away_canon} {form_details_away['pct']:.2f} -> {form_mult_away:.3f}")
              if away_canon in adj_map:
                  adj_map[away_canon]['notes'].append(f"RECENT FORM: {form_details_away['points']}pts ({form_details_away['pct']*100:.0f}%) -> {form_mult_away:.3f}")
+
+        # Log Momentum
+        if abs(momentum_home - 1.0) > 0.005:
+            direction_str = "↑ acelerando" if momentum_home > 1.0 else "↓ desacelerando"
+            print(f"  > MOMENTUM HOME: {home_canon} {direction_str} -> {momentum_home:.3f}")
+            adj_map.setdefault(home_canon, {'att_adj': 1.0, 'def_adj': 1.0, 'notes': []})['notes'].append(
+                f"MOMENTUM: {direction_str} ({momentum_info_home['recent_2_pts']}pts/2 vs {momentum_info_home['prior_3_pts']}pts/3) -> {momentum_home:.3f}"
+            )
+        if abs(momentum_away - 1.0) > 0.005:
+            direction_str = "↑ acelerando" if momentum_away > 1.0 else "↓ desacelerando"
+            print(f"  > MOMENTUM AWAY: {away_canon} {direction_str} -> {momentum_away:.3f}")
+            adj_map.setdefault(away_canon, {'att_adj': 1.0, 'def_adj': 1.0, 'notes': []})['notes'].append(
+                f"MOMENTUM: {direction_str} ({momentum_info_away['recent_2_pts']}pts/2 vs {momentum_info_away['prior_3_pts']}pts/3) -> {momentum_away:.3f}"
+            )
+
+        # Log Home Crisis / Stronghold
+        if abs(home_crisis_mult - 1.0) > 0.001:
+            label = crisis_info.get('label', 'normal')
+            print(f"  > HOME {label.upper()}: {home_canon} {crisis_info['home_wins']}V/{crisis_info['home_games']}J local -> {home_crisis_mult:.3f}")
+            adj_map.setdefault(home_canon, {'att_adj': 1.0, 'def_adj': 1.0, 'notes': []})['notes'].append(
+                f"LOCAL {label.upper()}: {crisis_info['home_wins']}V en {crisis_info['home_games']}J de local -> {home_crisis_mult:.3f}"
+            )
         
         # Apply adjustments from adj_map
         if home_canon in adj_map:
@@ -159,9 +208,16 @@ def main():
             
         l_home = comp['lambda_home_final']
         l_away = comp['lambda_away_final']
-        
-        # Optimize pick for quiniela scoring (2 exacto / 1 resultado)
-        quiniela = qx.optimize_pick_for_quiniela(l_home, l_away)
+
+        # Tabla: detectar equilibrio (diferencia ≤ 3 pts → más probabilidad de empate)
+        home_pts_table = current_table.get(home_canon, {}).get('pts', 0)
+        away_pts_table = current_table.get(away_canon, {}).get('pts', 0)
+        is_equilibrio = abs(home_pts_table - away_pts_table) <= 3
+        # Con equilibrio en tabla usamos rho más negativo (mayor corrección hacia empate)
+        dc_rho = (dc_rho_base - 0.04) if is_equilibrio else dc_rho_base
+
+        # Optimize pick for quiniela scoring (2 exacto / 1 resultado) con Dixon-Coles
+        quiniela = qx.optimize_pick_for_quiniela(l_home, l_away, dc_rho=dc_rho)
         prob_home_win = quiniela['prob_home_win']
         prob_draw = quiniela['prob_draw']
         prob_away_win = quiniela['prob_away_win']
@@ -183,7 +239,29 @@ def main():
             conf_label = 'SIN VENTAJA'
             pick_1x2 = 'N/A'
             pick_exact = 'N/A'
-            
+
+        # Baja uncertainty capping: si bajas combinadas son muy altas, bajar confianza a MEDIO
+        if conf_label == 'ALTO':
+            combined_baja_penalty = 0.0
+            if home_canon in adj_map:
+                combined_baja_penalty += abs(1.0 - adj_map[home_canon].get('att_adj', 1.0))
+                combined_baja_penalty += abs(1.0 - adj_map[home_canon].get('def_adj', 1.0))
+            if away_canon in adj_map:
+                combined_baja_penalty += abs(1.0 - adj_map[away_canon].get('att_adj', 1.0))
+                combined_baja_penalty += abs(1.0 - adj_map[away_canon].get('def_adj', 1.0))
+            baja_threshold = runtime_config.get('BAJA_UNCERTAINTY_THRESHOLD', 0.25)
+            if combined_baja_penalty > baja_threshold:
+                conf_label = 'MEDIO'
+                adj_map.setdefault(home_canon, {'att_adj': 1.0, 'def_adj': 1.0, 'notes': []})['notes'].append(
+                    f"[BAJA-CAP: impacto={combined_baja_penalty:.2f} > {baja_threshold:.2f} → rebajado a MEDIO]"
+                )
+
+        # Equilibrio en tabla: añadir nota informativa
+        if is_equilibrio and pick_1x2 != 'N/A':
+            adj_map.setdefault(home_canon, {'att_adj': 1.0, 'def_adj': 1.0, 'notes': []})['notes'].append(
+                f"TABLA-EQUILIBRIO: {home_canon}({home_pts_table}pts) vs {away_canon}({away_pts_table}pts) → DC-ρ={dc_rho:.2f}"
+            )
+
         # Qualitative Notes
         notes_str = ""
         if home_canon in adj_map and adj_map[home_canon]['notes']:
