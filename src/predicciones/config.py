@@ -22,9 +22,21 @@ def get_config(jornada):
             {'name': 'Clausura 2025', 'weight': 0.25},
             {'name': 'Apertura 2025', 'weight': 0.50},
         ],
-        'GENERIC_PRIOR_HOME': 1.39,   # μ_home real Clausura 2026 (J1-J6)
-        'GENERIC_PRIOR_AWAY': 1.09,   # μ_away real Clausura 2026 (J1-J6)
-        
+        'GENERIC_PRIOR_HOME': 1.38,   # μ_home real Clausura 2026 (J1-J8): 98 goles / 71 partidos
+        'GENERIC_PRIOR_AWAY': 1.20,   # μ_away real Clausura 2026 (J1-J8): 85 goles / 71 partidos (era 1.09 con J1-J6; J7-J8 visitante anotó 1.53/partido)
+
+        # Dixon-Coles draw correction (ρ negativo = aumenta P(0-0) y P(1-1), reduce P(1-0) y P(0-1))
+        'DC_RHO': -0.10,
+
+        # Crisis / Momentum
+        'HOME_CRISIS_WINS_THRESHOLD': 1,   # ≤ 1 victoria local en últimos N_HOME_FORM partidos → crisis
+        'N_HOME_FORM': 4,                   # Partidos de local a revisar para crisis
+        'MOMENTUM_THRESHOLD': 0.20,         # Diferencia de ritmo (últimas 2 vs previas 3) para activar bonus
+        'MOMENTUM_BONUS_MAX': 0.02,         # ±2% máximo por aceleración/desaceleración
+
+        # Baja uncertainty capping
+        'BAJA_UNCERTAINTY_THRESHOLD': 0.25, # Si penalización combinada > umbral → bajar confianza a MEDIO
+
         # Strategic Improvements
         'RIVALRY_LAMBDA_FACTOR': 0.88,  # -12% goals in classics
         'ABSTAIN_GAP_THRESHOLD': 0.03,

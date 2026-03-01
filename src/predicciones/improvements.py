@@ -3,6 +3,121 @@ import numpy as np
 import src.predicciones.config as config
 import src.predicciones.core as dl
 
+
+def _get_team_matches(stats_df, team_name, match_date, n):
+    """Helper: returns last N matches for a team before match_date, sorted recent-first."""
+    df = stats_df.copy()
+    if not pd.api.types.is_datetime64_any_dtype(df['date']):
+        df['date'] = pd.to_datetime(df['date'], dayfirst=True)
+    if 'home_canon' not in df.columns:
+        df['home_canon'] = df['home_team'].apply(dl.canonical_team_name)
+    if 'away_canon' not in df.columns:
+        df['away_canon'] = df['away_team'].apply(dl.canonical_team_name)
+    match_date = pd.to_datetime(match_date)
+    return df[
+        ((df['home_canon'] == team_name) | (df['away_canon'] == team_name)) &
+        (df['date'] < match_date)
+    ].sort_values('date', ascending=False).head(n)
+
+
+def _match_points(row, team_name):
+    """Returns 3/1/0 points for a team in a given match row."""
+    is_home = (row['home_canon'] == team_name)
+    gf = row['home_goals'] if is_home else row['away_goals']
+    ga = row['away_goals'] if is_home else row['home_goals']
+    return 3 if gf > ga else (1 if gf == ga else 0)
+
+def calculate_momentum_direction(stats_df, team_name, match_date, n=5,
+                                 threshold=0.20, bonus_max=0.02):
+    """
+    Detecta si el equipo está acelerando o desacelerando comparando
+    el ritmo de puntos de los últimos 2 partidos vs los 3 anteriores (de los últimos 5).
+
+    Returns: (direction_multiplier, info_dict)
+      direction_multiplier ≈ 1.0 ± bonus_max
+    """
+    team_matches = _get_team_matches(stats_df, team_name, match_date, n)
+
+    if len(team_matches) < n:
+        return 1.0, {"status": "insufficient_data", "games": len(team_matches)}
+
+    rows = list(team_matches.iterrows())
+    recent_pts = sum(_match_points(row, team_name) for _, row in rows[:2])
+    prior_pts  = sum(_match_points(row, team_name) for _, row in rows[2:5])
+
+    recent_pct = recent_pts / 6.0   # max 6 pts en 2 partidos
+    prior_pct  = prior_pts  / 9.0   # max 9 pts en 3 partidos
+    direction  = recent_pct - prior_pct
+
+    multiplier = 1.0
+    if direction > threshold:
+        multiplier = 1.0 + bonus_max * min(direction / 0.40, 1.0)
+    elif direction < -threshold:
+        multiplier = 1.0 - bonus_max * min(-direction / 0.40, 1.0)
+
+    return multiplier, {
+        "status": "calculated",
+        "recent_2_pts": recent_pts,
+        "prior_3_pts": prior_pts,
+        "recent_pct": recent_pct,
+        "prior_pct": prior_pct,
+        "direction": direction,
+        "multiplier": multiplier,
+    }
+
+
+def calculate_home_crisis_factor(stats_df, team_name, match_date, n_home=4,
+                                  crisis_threshold=1, crisis_penalty=0.92,
+                                  stronghold_bonus=1.04):
+    """
+    Detecta si el equipo LOCAL está en crisis o en racha como local.
+    Revisa los últimos n_home partidos jugados DE LOCAL antes de match_date.
+
+    Crisis     : ≤ crisis_threshold victorias locales → multiplier = crisis_penalty  (default -8%)
+    Stronghold : ≥ (n_home - 1) victorias locales     → multiplier = stronghold_bonus (default +4%)
+    Normal     : multiplier = 1.0
+
+    Returns: (multiplier, info_dict)
+    """
+    df = stats_df.copy()
+    if not pd.api.types.is_datetime64_any_dtype(df['date']):
+        df['date'] = pd.to_datetime(df['date'], dayfirst=True)
+    if 'home_canon' not in df.columns:
+        df['home_canon'] = df['home_team'].apply(dl.canonical_team_name)
+
+    match_date = pd.to_datetime(match_date)
+    home_matches = df[
+        (df['home_canon'] == team_name) &
+        (df['date'] < match_date)
+    ].sort_values('date', ascending=False).head(n_home)
+
+    if len(home_matches) < 3:
+        return 1.0, {"status": "insufficient_data", "home_games": len(home_matches)}
+
+    home_wins = int((home_matches['home_goals'] > home_matches['away_goals']).sum())
+    total = len(home_matches)
+    win_rate = home_wins / total
+
+    if home_wins <= crisis_threshold:
+        multiplier = crisis_penalty
+        label = "crisis"
+    elif home_wins >= (total - 1):
+        multiplier = stronghold_bonus
+        label = "stronghold"
+    else:
+        multiplier = 1.0
+        label = "normal"
+
+    return multiplier, {
+        "status": "calculated",
+        "home_games": total,
+        "home_wins": home_wins,
+        "win_rate": win_rate,
+        "multiplier": multiplier,
+        "label": label,
+    }
+
+
 def calculate_recent_form(stats_df, team_name, match_date, n=5):
     """
     Calculates a form multiplier based on the last N games.
