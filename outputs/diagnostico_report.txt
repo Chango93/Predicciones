@@ -2,13 +2,13 @@
 ================================================================================
 DIAGNOSTICO LAMBDAS - v6 REFACTORED (CORE LIB)
 ================================================================================
-Timestamp: 2026-02-27 04:50:46
+Timestamp: 2026-03-02 08:08:27
 
 ================================================================================
 CARGANDO DATOS
 ================================================================================
-[OK] data/inputs/jornada_8_final.json: 9 partidos
-[OK] data/inputs/Stats_liga_mx.json: 674 registros
+[OK] data/inputs/jornada_9_final.json: 9 partidos
+[OK] data/inputs/Stats_liga_mx.json: 683 registros
 
 ================================================================================
 VALIDACION: MATCH UNIQUENESS
@@ -32,17 +32,19 @@ CALCULANDO LAMBDAS (FUNCION CENTRALIZADA en CORE)
 ================================================================================
 VALIDACION: LAMBDA SANITY
 ================================================================================
-Lambda Home mean: 1.473 vs League Avg: 1.387 (6.2%)
-Lambda Away mean: 1.217 vs League Avg: 1.177 (3.4%)
+Lambda Home mean: 1.503 vs League Avg: 1.380 (8.9%)
+Lambda Away mean: 1.217 vs League Avg: 1.197 (1.7%)
 [OK] Lambda means dentro de tolerancia (±10%)
-Percentiles Home: P5=1.01, P95=2.11
-Percentiles Away: P5=0.88, P95=1.69
-Rango adaptativo esperado: [0.54, 2.42]
+Percentiles Home: P5=0.76, P95=2.33
+Percentiles Away: P5=0.72, P95=2.22
+Rango adaptativo esperado: [0.54, 2.45]
 [OK] Percentiles dentro de rango adaptativo
 
 [Grid Mass Coverage (0-5)]
-⚠️ WARNING: toluca vs guadalajara: Grid mass=0.966 < 0.97 (λ_h=2.35, λ_a=1.23)
-[INFO] 1 partidos con grid mass < 0.97. Considerar ampliar grid si necesario.
+⚠️ WARNING: monterrey vs queretaro: Grid mass=0.970 < 0.97 (λ_h=2.30, λ_a=0.73)
+⚠️ WARNING: puebla vs tigres: Grid mass=0.963 < 0.97 (λ_h=0.71, λ_a=2.42)
+⚠️ WARNING: guadalajara vs leon: Grid mass=0.967 < 0.97 (λ_h=2.35, λ_a=0.72)
+[INFO] 3 partidos con grid mass < 0.97. Considerar ampliar grid si necesario.
 
 [Clamping Detection]
 [OK] No se detectaron lambdas clampeados
@@ -51,9 +53,9 @@ Rango adaptativo esperado: [0.54, 2.42]
 ================================================================================
 PROMEDIOS BASE (sin adjustments)
 ================================================================================
-mean(lambda_home_base): 1.4730
+mean(lambda_home_base): 1.5030
 mean(lambda_away_base): 1.2174
-mean(lambda_total_base): 2.6905
+mean(lambda_total_base): 2.7204
 
 ================================================================================
 GUARDANDO ARCHIVOS
