@@ -80,7 +80,18 @@ def get_config(jornada):
         'CLAMP_REL_MAX': 1.60,
         'CLAMP_LAMBDA_MIN': 0.25,
         'CLAMP_LAMBDA_MAX': 4.00,
-        
+
+        # xG Integration (xgscore.io data)
+        # XG_BLEND: peso del xG_per_match vs goles reales en el suavizado Bayesiano.
+        #   0.0 = solo goles reales (comportamiento anterior)
+        #   0.40 = 40% xG + 60% goles reales (recomendado para muestras < 10 partidos)
+        'XG_BLEND': 0.40,
+        # XG_PTS_REGRESSION_FACTOR: sensibilidad de la regresión xPTS.
+        #   Si actual_pts >> xPTS → el equipo sobreperformó resultados → reducción leve de lambda.
+        #   Factor 0.15 → máx ±3% (capeado). Ejemplo: Cruz Azul +5.6pts sobre xPTS → -3% lambda.
+        'XG_PTS_REGRESSION_FACTOR': 0.15,
+        'XG_STATS_PATH': 'data/xg_stats.json',
+
         # Dynamic paths based on jornada
         'INPUT_MATCHES': f'data/inputs/jornada_{jornada}_final.json',
         'INPUT_QUALITATIVE': f'data/inputs/Investigacion_cualitativa_jornada{jornada}.json',

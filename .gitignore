@@ -13,6 +13,7 @@ build/
 htmlcov/
 
 # Virtual Environment
+.venv/
 venv/
 env/
 ENV/

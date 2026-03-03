@@ -432,12 +432,13 @@ def calculate_current_table(stats_df, tournament):
 
 # ========== FUNCION UNICA CENTRALIZADA: FUENTE DE VERDAD ==========
 
-def compute_components_and_lambdas(match_data, team_stats_current, 
-                                    prior_weighted_stats, 
+def compute_components_and_lambdas(match_data, team_stats_current,
+                                    prior_weighted_stats,
                                     league_avg_curr_raw, # RAW current league avg
-                                    config, 
+                                    config,
                                     shrinkage_divisor, adjustments=None,
-                                    stats_df_for_league_smoothing=None): # Optional context
+                                    stats_df_for_league_smoothing=None, # Optional context
+                                    xg_lookup=None): # xG data {canon_name: {...}}
     """
     Uses Refined Empirical Bayes for Rates + Dynamic Blending + Guardrails.
     """
@@ -518,30 +519,62 @@ def compute_components_and_lambdas(match_data, team_stats_current,
     # === 3. EMPIRICAL BAYES ON RATES ===
     ALPHA_ATT = config.get('BAYES_ALPHA_ATT', 4.0)
     ALPHA_DEF = config.get('BAYES_ALPHA_DEF', 5.0)
-    
+
     # --- HELPER: Smooth Rate ---
     def calc_smooth_rate(obs_g, obs_pj, prior_rate, alpha):
         return (obs_g + alpha * prior_rate) / (obs_pj + alpha)
 
-    # HOME ATTACK
+    # --- RAW OBSERVATIONS ---
     gf_home_obs = curr_home.get('GF_home', 0)
-    prior_rate_att_home = p_home.get('rate_att_home_prior', mu_home_final)
-    rate_att_home_smooth = calc_smooth_rate(gf_home_obs, pj_home, prior_rate_att_home, ALPHA_ATT)
-    
-    # AWAY ATTACK
-    gf_away_obs = curr_away.get('GF_away', 0)
-    prior_rate_att_away = p_away.get('rate_att_away_prior', mu_away_final)
-    rate_att_away_smooth = calc_smooth_rate(gf_away_obs, pj_away, prior_rate_att_away, ALPHA_ATT)
-    
-    # HOME DEFENSE
     gc_home_obs = curr_home.get('GC_home', 0)
-    prior_rate_def_home = p_home.get('rate_def_home_prior', mu_away_final)
-    rate_def_home_smooth = calc_smooth_rate(gc_home_obs, pj_home, prior_rate_def_home, ALPHA_DEF)
-    
-    # AWAY DEFENSE
+    gf_away_obs = curr_away.get('GF_away', 0)
     gc_away_obs = curr_away.get('GC_away', 0)
+
+    # === 3a. XG BLEND: mezcla goles reales con xG como señal de calidad real ===
+    # xG_per_match es mejor estimador de la tasa de ataque verdadera en muestras pequeñas
+    # porque elimina la varianza de finishing luck. Se mezcla ANTES del suavizado Bayesiano.
+    # eff_gf/gc = (1 - XG_BLEND) * goles_reales + XG_BLEND * xG_implicado
+    # El efecto de venue (local/visitante) lo maneja home_factor downstream — se usa xG total
+    # como proxy de calidad independiente de venue, lo cual es una aproximación conservadora.
+    XG_BLEND = config.get('XG_BLEND', 0.0)
+    xg_home_entry = (xg_lookup or {}).get(home_canon, {})
+    xg_away_entry = (xg_lookup or {}).get(away_canon, {})
+
+    def _blend_obs_with_xg(actual_g, actual_pj, xg_per_match, blend_w):
+        """Blend actual goals with xG-implied goals for Bayesian input.
+        Falls back to actual_g if blend_w==0, no xG data, or insufficient games."""
+        if blend_w <= 0.0 or xg_per_match is None or actual_pj < 3:
+            return actual_g
+        xg_implied = xg_per_match * actual_pj
+        return (1.0 - blend_w) * actual_g + blend_w * xg_implied
+
+    xg_att_home = xg_home_entry.get('xG_per_match') if xg_home_entry else None
+    xg_def_home = (xg_home_entry['xGC'] / xg_home_entry['PJ']
+                   if xg_home_entry and xg_home_entry.get('PJ', 0) > 0 else None)
+    xg_att_away = xg_away_entry.get('xG_per_match') if xg_away_entry else None
+    xg_def_away = (xg_away_entry['xGC'] / xg_away_entry['PJ']
+                   if xg_away_entry and xg_away_entry.get('PJ', 0) > 0 else None)
+
+    eff_gf_home = _blend_obs_with_xg(gf_home_obs, pj_home, xg_att_home, XG_BLEND)
+    eff_gc_home = _blend_obs_with_xg(gc_home_obs, pj_home, xg_def_home, XG_BLEND)
+    eff_gf_away = _blend_obs_with_xg(gf_away_obs, pj_away, xg_att_away, XG_BLEND)
+    eff_gc_away = _blend_obs_with_xg(gc_away_obs, pj_away, xg_def_away, XG_BLEND)
+
+    # HOME ATTACK
+    prior_rate_att_home = p_home.get('rate_att_home_prior', mu_home_final)
+    rate_att_home_smooth = calc_smooth_rate(eff_gf_home, pj_home, prior_rate_att_home, ALPHA_ATT)
+
+    # AWAY ATTACK
+    prior_rate_att_away = p_away.get('rate_att_away_prior', mu_away_final)
+    rate_att_away_smooth = calc_smooth_rate(eff_gf_away, pj_away, prior_rate_att_away, ALPHA_ATT)
+
+    # HOME DEFENSE
+    prior_rate_def_home = p_home.get('rate_def_home_prior', mu_away_final)
+    rate_def_home_smooth = calc_smooth_rate(eff_gc_home, pj_home, prior_rate_def_home, ALPHA_DEF)
+
+    # AWAY DEFENSE
     prior_rate_def_away = p_away.get('rate_def_away_prior', mu_home_final)
-    rate_def_away_smooth = calc_smooth_rate(gc_away_obs, pj_away, prior_rate_def_away, ALPHA_DEF)
+    rate_def_away_smooth = calc_smooth_rate(eff_gc_away, pj_away, prior_rate_def_away, ALPHA_DEF)
     
     # === 4. CONVERT TO RELATIVES (Using Smoothed League Avg) ===
     # Rel = SmoothRate / SmoothedLeagueAvg
@@ -630,6 +663,17 @@ def compute_components_and_lambdas(match_data, team_stats_current,
         'ga_home_obs': gc_home_obs,
         'gf_away_obs': gf_away_obs,
         'ga_away_obs': gc_away_obs,
+
+        # AUDIT: xG Blend
+        'xg_blend': XG_BLEND,
+        'xg_att_home': xg_att_home,
+        'xg_def_home': xg_def_home,
+        'xg_att_away': xg_att_away,
+        'xg_def_away': xg_def_away,
+        'eff_gf_home': round(eff_gf_home, 3),
+        'eff_gc_home': round(eff_gc_home, 3),
+        'eff_gf_away': round(eff_gf_away, 3),
+        'eff_gc_away': round(eff_gc_away, 3),
         
         # AUDIT: Rates
         'prior_rate_att_home': prior_rate_att_home,

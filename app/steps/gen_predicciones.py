@@ -97,7 +97,50 @@ def main():
     # Compute current table for equilibrium detection
     current_table = dl.calculate_current_table(stats_df, runtime_config['CURRENT_TOURNAMENT'])
     dc_rho_base = runtime_config.get('DC_RHO', -0.10)
-    
+
+    # === INTEGRACION xG (xgscore.io) ===
+    # 1. Cargar xg_stats.json y construir lookup por nombre canónico
+    xg_lookup = {}
+    xg_stats_path = runtime_config.get('XG_STATS_PATH', 'data/xg_stats.json')
+    if os.path.exists(xg_stats_path):
+        with open(xg_stats_path, 'r', encoding='utf-8') as f:
+            xg_raw = json.load(f)
+        for team_name, entry in xg_raw.get('teams', {}).items():
+            canon = dl.canonical_team_name(team_name)
+            if canon not in xg_lookup:  # first-entry wins: evita duplicado 'pumas'
+                xg_lookup[canon] = entry
+        pj_xg = xg_raw.get('meta', {}).get('matches_played', '?')
+        print(f"\n[xG] {len(xg_lookup)} equipos cargados de {xg_stats_path} (PJ={pj_xg})")
+
+        # 2. Aplicar regresión xPTS al adj_map (ANTES del match loop)
+        # Si actual_pts >> xPTS → equipo sobreperformó resultados → reducción leve de lambda
+        # Si actual_pts << xPTS → equipo subperformó → boost leve
+        XG_PTS_FACTOR = runtime_config.get('XG_PTS_REGRESSION_FACTOR', 0.15)
+        xpts_count = 0
+        for team_canon, xg_entry in xg_lookup.items():
+            xpts = xg_entry.get('xPTS', 0)
+            if xpts <= 0:
+                continue
+            actual_pts = current_table.get(team_canon, {}).get('pts', 0)
+            if actual_pts == 0:
+                continue
+            pts_diff_ratio = (actual_pts - xpts) / xpts
+            adj = max(0.97, min(1.03, 1.0 - pts_diff_ratio * XG_PTS_FACTOR))
+            if abs(adj - 1.0) < 0.003:
+                continue  # efecto insignificante (<0.3%), ignorar
+            if team_canon not in adj_map:
+                adj_map[team_canon] = {'att_adj': 1.0, 'def_adj': 1.0, 'notes': []}
+            adj_map[team_canon]['att_adj'] *= adj
+            direction = "↓ sobrerendimiento" if adj < 1.0 else "↑ subrendimiento"
+            adj_map[team_canon]['notes'].append(
+                f"xPTS-REGRESION {direction}: {actual_pts:.0f}pts vs {xpts:.1f}xPTS → x{adj:.3f}"
+            )
+            print(f"  [xPTS] {team_canon}: {actual_pts:.0f}pts reales vs {xpts:.1f}xPTS → x{adj:.3f}")
+            xpts_count += 1
+        print(f"[xG] Regresión xPTS aplicada a {xpts_count} equipos")
+    else:
+        print(f"[xG] WARNING: No se encontró {xg_stats_path} — modelo sin datos xG")
+
     # 4. Generate Predictions
     print("Generating predictions...")
     results = []
@@ -193,10 +236,11 @@ def main():
         # Compute Lambda Components
         try:
              comp, errors = dl.compute_components_and_lambdas(
-                match, team_stats_current, 
+                match, team_stats_current,
                 prior_weighted_stats,
                 league_avg_curr, runtime_config,
-                runtime_config['SHRINKAGE_DIVISOR_ACTUAL'], match_adjustments
+                runtime_config['SHRINKAGE_DIVISOR_ACTUAL'], match_adjustments,
+                xg_lookup=xg_lookup
             )
         except Exception as e:
             print(f"CRITICAL ERROR in {home_raw}-{away_raw}: {e}")
