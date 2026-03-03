@@ -1,0 +1,79 @@
+{
+  "_instrucciones": "Llenar 'result_1x2' con '1', 'X' o '2'. Llenar 'score_home' y 'score_away' con goles reales. Las cuotas de cierre son opcionales (mejoran CLV); si no las tienes, dejar en null.",
+  "jornada": 9,
+  "tournament": "Clausura 2026",
+  "matches": [
+    {
+      "home": "santos laguna",
+      "away": "cruz azul",
+      "result_1x2": null,
+      "score_home": null,
+      "score_away": null,
+      "closing_odds": { "1": null, "X": null, "2": null }
+    },
+    {
+      "home": "pachuca",
+      "away": "necaxa",
+      "result_1x2": null,
+      "score_home": null,
+      "score_away": null,
+      "closing_odds": { "1": null, "X": null, "2": null }
+    },
+    {
+      "home": "atletico de san luis",
+      "away": "mazatlan",
+      "result_1x2": null,
+      "score_home": null,
+      "score_away": null,
+      "closing_odds": { "1": null, "X": null, "2": null }
+    },
+    {
+      "home": "pumas",
+      "away": "toluca",
+      "result_1x2": null,
+      "score_home": null,
+      "score_away": null,
+      "closing_odds": { "1": null, "X": null, "2": null }
+    },
+    {
+      "home": "monterrey",
+      "away": "queretaro",
+      "result_1x2": null,
+      "score_home": null,
+      "score_away": null,
+      "closing_odds": { "1": null, "X": null, "2": null }
+    },
+    {
+      "home": "puebla",
+      "away": "tigres",
+      "result_1x2": null,
+      "score_home": null,
+      "score_away": null,
+      "closing_odds": { "1": null, "X": null, "2": null }
+    },
+    {
+      "home": "america",
+      "away": "juarez",
+      "result_1x2": null,
+      "score_home": null,
+      "score_away": null,
+      "closing_odds": { "1": null, "X": null, "2": null }
+    },
+    {
+      "home": "atlas",
+      "away": "tijuana",
+      "result_1x2": null,
+      "score_home": null,
+      "score_away": null,
+      "closing_odds": { "1": null, "X": null, "2": null }
+    },
+    {
+      "home": "guadalajara",
+      "away": "leon",
+      "result_1x2": null,
+      "score_home": null,
+      "score_away": null,
+      "closing_odds": { "1": null, "X": null, "2": null }
+    }
+  ]
+}
