@@ -111,11 +111,11 @@ def resolve_config(jornada=None):
     Precedencia:
     1) Argumento explícito `jornada`
     2) Variable de entorno `PRED_JORNADA`
-    3) Fallback a jornada 6
+    3) Fallback a jornada 10 (jornada activa)
     """
     if jornada is None:
         env_jornada = os.getenv('PRED_JORNADA')
-        jornada = int(env_jornada) if env_jornada else 6
+        jornada = int(env_jornada) if env_jornada else 10
     return get_config(int(jornada))
 
 # Backwards compatibility: CONFIG default para J6 (o env si existe)

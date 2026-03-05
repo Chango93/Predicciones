@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 import src.predicciones.core as dl
 import src.predicciones.config as config
-from math import isnan
+from math import isnan, exp
 
 # === CONFIG (Same as gen_predicciones) ===
 # ... (Repeated logic for parsing will be refined to capture text)
@@ -293,7 +293,83 @@ def main():
         md_output.append(f"- *Fuerza Defensa Rival*: {def_force_h:.3f}")
         md_output.append(f"- *Media Liga Visita*: {avg_a:.3f}")
         md_output.append(f"- *Cálculo Base*: {att_force_a:.3f} * {def_force_h:.3f} * {avg_a:.3f} = {l_away_base:.3f}")
-        
+
+        # --- P(anotar >= 1) SECTION ---
+        md_output.append(f"\n**📈 Probabilidad de Anotar (≥ 1 gol):**")
+        md_output.append(f"> Fórmula: P = 1 − e^(−λ)  *(Poisson independiente)*")
+        md_output.append(f"")
+        md_output.append(f"| Equipo | λ (goles esp.) | P(≥ 1 gol) | Nivel |")
+        md_output.append(f"| :--- | :---: | :---: | :---: |")
+
+        def _scoring_prob_row(team_name, lam):
+            p = 1.0 - exp(-lam)
+            if p >= 0.65:
+                nivel = "Alta 🟢"
+            elif p >= 0.40:
+                nivel = "Media 🟡"
+            else:
+                nivel = "Baja 🔴"
+            return f"| {team_name} | {lam:.3f} | **{p:.1%}** | {nivel} |"
+
+        md_output.append(_scoring_prob_row(f"{home_raw} (Local)", l_home))
+        md_output.append(_scoring_prob_row(f"{away_raw} (Visita)", l_away))
+
+        # Interpretación narrativa automática
+        p_home_score = 1.0 - exp(-l_home)
+        p_away_score = 1.0 - exp(-l_away)
+        md_output.append(f"")
+        md_output.append(
+            f"> 💬 Aunque el marcador exacto más probable puede ser un {int(round(l_home))}-0 o similar, "
+            f"**{away_raw}** tiene **{p_away_score:.0%}** de probabilidad de anotar al menos 1 gol. "
+            f"Esos goles están dispersos en marcadores menos probables individualmente (ej. {int(round(l_home))}-1, {max(0,int(round(l_home))-1)}-1), "
+            f"que el modelo sí contempla pero no aparecen en el top 5."
+        )
+
+        # --- Garbage Goal metric (EXACT: suma sobre grilla Poisson) ---
+        # ∑ P(H=h)*P(A=a) donde el fav gana Y el underdog anota ≥1
+        from math import factorial
+
+        MAX_G = 15  # techo razonable; P(X>15) es despreciable para λ<5
+
+        def poisson_pmf(lam, k):
+            return (lam ** k) * exp(-lam) / factorial(k)
+
+        # Determinar favorito
+        if prob_home >= prob_away:
+            fav_name, und_name = home_raw, away_raw
+            p_fav_win   = prob_home
+            p_und_score = p_away_score
+            # HOME fav: h > a, a >= 1
+            p_garbage_exact = sum(
+                poisson_pmf(l_home, h) * poisson_pmf(l_away, a)
+                for h in range(1, MAX_G + 1)
+                for a in range(1, h)          # a >= 1 y a < h
+            )
+        else:
+            fav_name, und_name = away_raw, home_raw
+            p_fav_win   = prob_away
+            p_und_score = p_home_score
+            # AWAY fav: a > h, h >= 1
+            p_garbage_exact = sum(
+                poisson_pmf(l_home, h) * poisson_pmf(l_away, a)
+                for a in range(1, MAX_G + 1)
+                for h in range(1, a)          # h >= 1 y h < a
+            )
+
+        # Proxy (para comparación)
+        p_garbage_proxy = p_fav_win * p_und_score
+        p_garbage = p_garbage_exact   # el que usamos en resumen
+
+        md_output.append(f"")
+        md_output.append(
+            f"**🗑️ P(Garbage Goal):** {p_garbage_exact:.1%} *(exacta)*"
+            f"  ·  proxy simple: {p_garbage_proxy:.1%}"
+        )
+        md_output.append(
+            f"> = Σ P({fav_name}=h)·P({und_name}=a) donde fav gana y underdog ≥1 gol"
+        )
+        # --- END P(anotar >= 1) SECTION ---
+
         # Adjustments Table
         md_output.append(f"\n**📊 Desglose Completo de Ajustes:**")
         md_output.append("```")
@@ -384,17 +460,24 @@ def main():
             'match': f"{home_raw} vs {away_raw}",
             'pick': best['score'],
             'ev': best['ev'],
-            'trend': f"{best['type']} ({best['p_gral']*100:.0f}%)"
+            'trend': f"{best['type']} ({best['p_gral']*100:.0f}%)",
+            'p_home_score': p_home_score,
+            'p_away_score': p_away_score,
+            'p_garbage': p_garbage,
+            'und_name': und_name,
         })
         
         md_output.append("\n---")
 
     # Final Summary
-    md_output.append(f"\n# 🏆 Resumen Final: Picks Recomendados")
-    md_output.append(f"| Partido | Pick Óptimo | Valor (Puntos Esp.) | Tendencia Base |")
-    md_output.append(f"| :--- | :---: | :---: | :---: |")
+    md_output.append(f"# 🏆 Resumen Final: Picks Recomendados")
+    md_output.append(f"| Partido | Pick Óptimo | Valor (Puntos Esp.) | Tendencia Base | P(Local ≥1) | P(Visita ≥1) | 🗑️ P(Garbage) |")
+    md_output.append(f"| :--- | :---: | :---: | :---: | :---: | :---: | :---: |")
     for s in summary_picks:
-        md_output.append(f"| {s['match']} | **{s['pick']}** | EV: {s['ev']:.3f} | {s['trend']} |")
+        md_output.append(
+            f"| {s['match']} | **{s['pick']}** | EV: {s['ev']:.3f} | {s['trend']} "
+            f"| {s['p_home_score']:.0%} | {s['p_away_score']:.0%} | {s['p_garbage']:.0%} |"
+        )
         
     # Write File (outputs + copia en raíz para consulta rápida)
     jornada = runtime_config.get('JORNADA', 'X')
