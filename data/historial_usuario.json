@@ -3,6 +3,81 @@
     "history": [
         {
             "tournament": "Clausura 2026",
+            "jornada": 9,
+            "points": 6,
+            "exact_picks": 1,
+            "rank_jornada": 10,
+            "total_predictions": 72,
+            "total_points_cumulative": 36,
+            "matches": [
+                {
+                    "home": "Atlético de San Luis",
+                    "away": "Mazatlán",
+                    "prediction": "1-0",
+                    "result": "4-1",
+                    "points": 1,
+                    "is_exact": false
+                },
+                {
+                    "home": "Monterrey",
+                    "away": "Querétaro",
+                    "prediction": "2-0",
+                    "result": "4-0",
+                    "points": 1,
+                    "is_exact": false
+                },
+                {
+                    "home": "Pachuca",
+                    "away": "Necaxa",
+                    "prediction": "1-1",
+                    "result": "2-1",
+                    "points": 0,
+                    "is_exact": false
+                },
+                {
+                    "home": "Club América",
+                    "away": "FC Juárez",
+                    "prediction": "2-0",
+                    "result": "1-2",
+                    "points": 0,
+                    "is_exact": false
+                },
+                {
+                    "home": "Atlas",
+                    "away": "Tijuana",
+                    "prediction": "2-1",
+                    "result": "2-1",
+                    "points": 2,
+                    "is_exact": true
+                },
+                {
+                    "home": "Puebla",
+                    "away": "Tigres UANL",
+                    "prediction": "0-2",
+                    "result": "3-1",
+                    "points": 0,
+                    "is_exact": false
+                },
+                {
+                    "home": "Santos Laguna",
+                    "away": "Cruz Azul",
+                    "prediction": "0-2",
+                    "result": "1-2",
+                    "points": 1,
+                    "is_exact": false
+                },
+                {
+                    "home": "Pumas UNAM",
+                    "away": "Toluca",
+                    "prediction": "0-1",
+                    "result": "2-3",
+                    "points": 1,
+                    "is_exact": false
+                }
+            ]
+        },
+        {
+            "tournament": "Clausura 2026",
             "jornada": 8,
             "points": 3,
             "exact_picks": 0,
